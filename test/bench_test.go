@@ -27,7 +27,13 @@ func BenchmarkTest(b *testing.B) {
 				hash.Write(str)
 			}
 		})
+	}
+}
 
+func BenchmarkMarshal(b *testing.B) {
+	sizes := []int{1, 10, 100, 1000, 10000}
+
+	for _, size := range sizes {
 		b.Run(fmt.Sprintf("%d", size), func(b *testing.B) {
 			b.ReportAllocs()
 			b.ReportMetric(float64(size), "size")
@@ -44,6 +50,5 @@ func BenchmarkTest(b *testing.B) {
 				_ = fmt.Sprintf("%s ", string(res))
 			}
 		})
-
 	}
 }
