@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benchstat Visualization</title>
+    <script src="{{chartJsUri}}"></script>
+    <style>
+        body {
+            font-family: var(--vscode-font-family);
+            color: var(--vscode-foreground);
+            background-color: var(--vscode-editor-background);
+            padding: 20px;
+            margin: 0;
+        }
+        h1, h2 {
+            color: var(--vscode-editor-foreground);
+        }
+        .metadata {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: var(--vscode-editor-inactiveSelectionBackground);
+            border-radius: 5px;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--vscode-editor-inactiveSelectionBackground);
+            border-radius: 5px;
+        }
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .control-group h3 {
+            margin-top: 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        select, input[type="color"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            background-color: var(--vscode-input-background);
+            color: var(--vscode-input-foreground);
+            border: 1px solid var(--vscode-input-border);
+            border-radius: 3px;
+        }
+        button {
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: var(--vscode-button-hoverBackground);
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--vscode-editor-inactiveSelectionBackground);
+            border-radius: 5px;
+        }
+        .color-palette {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .palette {
+            cursor: pointer;
+            display: flex;
+            width: 100px;
+            height: 20px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .palette-color {
+            flex: 1;
+            height: 100%;
+        }
+        .palette.selected {
+            outline: 2px solid var(--vscode-focusBorder);
+        }
+        .implementations-list {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 5px;
+            background-color: var(--vscode-input-background);
+            border: 1px solid var(--vscode-input-border);
+            border-radius: 3px;
+        }
+        .implementation-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .implementation-item input {
+            margin-right: 8px;
+        }
+        .custom-colors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .color-input {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .color-input input {
+            margin-right: 5px;
+            width: 50px;
+        }
+        .tooltip {
+            background-color: var(--vscode-editor-background);
+            border: 1px solid var(--vscode-input-border);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .legend-container {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: var(--vscode-editor-inactiveSelectionBackground);
+            border-radius: 5px;
+        }
+        .delta-indicator {
+            margin-left: 5px;
+            font-size: 0.8em;
+        }
+        .delta-better {
+            color: #4bc0c0;
+        }
+        .delta-worse {
+            color: #ff6384;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 0;
+            border-bottom: 1px solid var(--vscode-input-border);
+        }
+        .tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+            margin-right: 2px;
+            background-color: var(--vscode-editor-inactiveSelectionBackground);
+        }
+        .tab.active {
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+        }
+        .tab-content {
+            display: none;
+            padding: 15px;
+            background-color: var(--vscode-editor-inactiveSelectionBackground);
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .grid-display-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .grid-display-toggle input {
+            margin-right: 8px;
+        }
+        .grid-lines-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .grid-lines-toggle input {
+            margin-right: 8px;
+        }
+        .point-style-select {
+            margin-bottom: 10px;
+        }
+        .animation-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .animation-toggle input {
+            margin-right: 8px;
+        }
+        .export-buttons {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .table-view {
+            margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+            overflow-x: auto;
+            background-color: var(--vscode-editor-inactiveSelectionBackground);
+            border-radius: 5px;
+        }
+        .table-view table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table-view th, .table-view td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--vscode-input-border);
+        }
+        .table-view th {
+            background-color: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+        }
+        .table-view tr:hover {
+            background-color: var(--vscode-list-hoverBackground);
+        }
+        .positive-delta {
+            color: var(--vscode-errorForeground);
+        }
+        .negative-delta {
+            color: var(--vscode-terminal-ansiGreen);
+        }
+    </style>
+</head>
+<body>
+    <h1>Benchstat Visualization</h1>
+    
+    <div class="metadata">
+        <h2>Environment</h2>
+        <p><strong>Package:</strong> {{benchstatData.metadata.pkg}}</p>
+        <p><strong>OS:</strong> {{benchstatData.metadata.goos}}</p>
+        <p><strong>Architecture:</strong> {{benchstatData.metadata.goarch}}</p>
+        {{#if benchstatData.metadata.note}}
+        <p><strong>Note:</strong> {{benchstatData.metadata.note}}</p>
+        {{/if}}
+    </div>
+    
+    <div class="tabs">
+        <div class="tab active" data-tab="chart-tab">Chart View</div>
+        <div class="tab" data-tab="table-tab">Table View</div>
+        <div class="tab" data-tab="settings-tab">Appearance</div>
+    </div>
+    
+    <div id="chart-tab" class="tab-content active">
+        <div class="controls">
+            <div class="control-group">
+                <h3>Implementations</h3>
+                <div class="implementations-list">
+                    {{#each implementations}}
+                    <div class="implementation-item">
+                        <input type="checkbox" id="impl-{{@index}}" value="{{name}}" 
+                               data-index="{{@index}}" class="implementation-checkbox" checked>
+                        <label for="impl-{{@index}}">{{name}}{{#if isBase}} (base){{/if}}</label>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>Metric</h3>
+                <select id="metric-select">
+                    {{#each metrics}}
+                    <option value="{{unit}}">{{name}} ({{unit}})</option>
+                    {{/each}}
+                </select>
+                
+                <h3>Chart Type</h3>
+                <select id="chart-type">
+                    <option value="bar">Bar Chart</option>
+                    <option value="line">Line Chart</option>
+                    <option value="radar">Radar Chart</option>
+                    <option value="scatter">Scatter Plot</option>
+                </select>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="show-deltas" checked>
+                    <label for="show-deltas">Show percent differences</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="normalize-to-base">
+                    <label for="normalize-to-base">Normalize to base implementation</label>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>Colors</h3>
+                <div class="color-palette">
+                    {{#each colorPalettes}}
+                    <div class="palette {{#if (eq @key "default")}}selected{{/if}}" data-palette="{{@key}}">
+                        {{#each this}}
+                        {{#if (lt @index 5)}}
+                        <div class="palette-color" style="background-color: {{this}}"></div>
+                        {{/if}}
+                        {{/each}}
+                    </div>
+                    {{/each}}
+                </div>
+                
+                <div id="custom-colors" class="custom-colors">
+                    <!-- Custom color inputs will be added dynamically -->
+                </div>
+                
+                <div class="export-buttons">
+                    <button id="export-png">Export PNG</button>
+                    <button id="export-svg">Export SVG</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="benchstatChart"></canvas>
+        </div>
+    </div>
+    
+    <div id="table-tab" class="tab-content">
+        <div class="controls">
+            <div class="control-group">
+                <h3>Metric</h3>
+                <select id="table-metric-select">
+                    {{#each metrics}}
+                    <option value="{{unit}}">{{name}} ({{unit}})</option>
+                    {{/each}}
+                </select>
+            </div>
+        </div>
+        
+        <div class="table-view">
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>Size</th>
+                        {{#each benchstatData.implementations}}
+                        <th>{{this}}</th>
+                        {{#unless @first}}
+                        <th>vs Base</th>
+                        {{/unless}}
+                        {{/each}}
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Table rows will be added dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div id="settings-tab" class="tab-content">
+        <div class="controls">
+            <div class="control-group">
+                <h3>Chart Settings</h3>
+                
+                <div class="grid-display-toggle">
+                    <input type="checkbox" id="show-grid" checked>
+                    <label for="show-grid">Show Grid</label>
+                </div>
+                
+                <div class="grid-lines-toggle">
+                    <input type="checkbox" id="show-x-grid" checked>
+                    <label for="show-x-grid">X-axis Grid Lines</label>
+                </div>
+                
+                <div class="grid-lines-toggle">
+                    <input type="checkbox" id="show-y-grid" checked>
+                    <label for="show-y-grid">Y-axis Grid Lines</label>
+                </div>
+                
+                <div class="point-style-select">
+                    <label for="point-style">Point Style</label>
+                    <select id="point-style">
+                        <option value="circle">Circle</option>
+                        <option value="cross">Cross</option>
+                        <option value="crossRot">Rotated Cross</option>
+                        <option value="dash">Dash</option>
+                        <option value="line">Line</option>
+                        <option value="rect">Rectangle</option>
+                        <option value="rectRounded">Rounded Rectangle</option>
+                        <option value="rectRot">Rotated Rectangle</option>
+                        <option value="star">Star</option>
+                        <option value="triangle">Triangle</option>
+                    </select>
+                </div>
+                
+                <div class="animation-toggle">
+                    <input type="checkbox" id="enable-animations" checked>
+                    <label for="enable-animations">Enable Animations</label>
+                </div>
+                
+                <label for="chart-background">Chart Background</label>
+                <select id="chart-background">
+                    <option value="default">Default</option>
+                    <option value="transparent">Transparent</option>
+                    <option value="gradient">Gradient</option>
+                </select>
+                
+                <label for="legend-position">Legend Position</label>
+                <select id="legend-position">
+                    <option value="top">Top</option>
+                    <option value="bottom">Bottom</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <h3>Font Settings</h3>
+                
+                <label for="title-size">Title Font Size</label>
+                <input type="range" id="title-size" min="8" max="24" value="14">
+                <span id="title-size-value">14px</span>
+                
+                <label for="label-size">Axis Label Font Size</label>
+                <input type="range" id="label-size" min="8" max="20" value="12">
+                <span id="label-size-value">12px</span>
+                
+                <label for="tick-size">Tick Font Size</label>
+                <input type="range" id="tick-size" min="6" max="16" value="10">
+                <span id="tick-size-value">10px</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Acquire VS Code API
+        const vscode = acquireVsCodeApi();
+        
+        // Store the benchstat data
+        const benchstatData = {{{benchstatDataJson}}};
+        
+        // Store color palettes
+        const colorPalettes = {{{colorPalettesJson}}};
+        let selectedPalette = 'default';
+        let customColors = [...colorPalettes.default];
+        
+        // Initialize chart
+        let benchstatChart = null;
+        
+        // Chart settings
+        let chartSettings = {
+            showGrid: true,
+            showXGrid: true,
+            showYGrid: true,
+            pointStyle: 'circle',
+            enableAnimations: true,
+            chartBackground: 'default',
+            legendPosition: 'top',
+            titleSize: 14,
+            labelSize: 12,
+            tickSize: 10
+        };
+        
+        // Get selected implementations
+        function getSelectedImplementations() {
+            const checkboxes = document.querySelectorAll('.implementation-checkbox:checked');
+            return Array.from(checkboxes).map(checkbox => checkbox.value);
+        }
+        
+        // Update the chart based on selected options
+        function updateChart() {
+            const selectedImplementations = getSelectedImplementations();
+            const selectedMetric = document.getElementById('metric-select').value;
+            const chartType = document.getElementById('chart-type').value;
+            const showDeltas = document.getElementById('show-deltas').checked;
+            const normalizeToBase = document.getElementById('normalize-to-base').checked;
+            
+            if (selectedImplementations.length === 0) {
+                return;
+            }
+            
+            // Find base implementation
+            const baseImpl = benchstatData.implementations.find(impl => benchstatData.baseImplementation === impl);
+            const baseImplName = baseImpl ? baseImpl : '';
+            
+            // Send message to the extension with the selected options
+            vscode.postMessage({
+                command: 'updateBenchstatVisualization',
+                selectedImplementations,
+                selectedMetric,
+                chartType,
+                showDeltas
+            });
+            
+            // Prepare chart data
+            const labels = benchstatData.results.map(result => result.size);
+            const datasets = [];
+            
+            // Process each selected implementation
+            selectedImplementations.forEach((implName, implIndex) => {
+                const data = [];
+                const deltas = [];
+                
+                // Get base implementation values for normalization if needed
+                let baseValues = [];
+                if (normalizeToBase && implName !== baseImplName) {
+                    benchstatData.results.forEach(result => {
+                        const metricValues = result.values[selectedMetric];
+                        const baseValue = metricValues && metricValues[baseImplName] ? 
+                            metricValues[baseImplName].value : null;
+                        baseValues.push(baseValue);
+                    });
+                }
+                
+                // Get data for each size
+                benchstatData.results.forEach((result, sizeIndex) => {
+                    // Access the value from the data structure
+                    const metricValues = result.values[selectedMetric];
+                    const implValue = metricValues ? metricValues[implName] : null;
+                    
+                    if (implValue) {
+                        // Normalize to base if requested
+                        if (normalizeToBase && implName !== baseImplName && baseValues[sizeIndex]) {
+                            // For time (lower is better), we inverse the ratio to make higher = better
+                            if (selectedMetric.includes('sec/op')) {
+                                data.push((baseValues[sizeIndex] / implValue.value) * 100);
+                            } else {
+                                // For throughput (higher is better), we use direct ratio
+                                data.push((implValue.value / baseValues[sizeIndex]) * 100);
+                            }
+                        } else {
+                            data.push(implValue.value);
+                        }
+                        
+                        // Store delta if available
+                        if (implValue.baselineDelta !== undefined) {
+                            deltas.push(implValue.baselineDelta);
+                        } else {
+                            deltas.push(null);
+                        }
+                    } else {
+                        data.push(null);
+                        deltas.push(null);
+                    }
+                });
+                
+                // Set color for this implementation
+                const colorIndex = implIndex % customColors.length;
+                const baseColor = customColors[colorIndex];
+                
+                // Create dataset
+                const dataset = {
+                    label: implName + (implName === baseImplName ? ' (base)' : ''),
+                    data: data,
+                    backgroundColor: setAlpha(baseColor, 0.5),
+                    borderColor: baseColor,
+                    borderWidth: 1,
+                    hoverBackgroundColor: setAlpha(baseColor, 0.7),
+                    hoverBorderColor: baseColor,
+                    pointBackgroundColor: baseColor,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: baseColor,
+                    pointStyle: chartSettings.pointStyle,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    deltas: deltas // Custom property for tooltips
+                };
+                
+                datasets.push(dataset);
+            });
+            
+            // Apply chart background
+            let chartBackgroundColor;
+            switch (chartSettings.chartBackground) {
+                case 'transparent':
+                    chartBackgroundColor = 'transparent';
+                    break;
+                case 'gradient':
+                    // Will be set in the plugin options
+                    chartBackgroundColor = null;
+                    break;
+                default:
+                    chartBackgroundColor = 'rgba(255, 255, 255, 0.1)';
+            }
+            
+            // Get appropriate unit and scale labels from the metric
+            let { unitLabel, scaleType } = getScaleInfoForMetric(selectedMetric, normalizeToBase);
+            
+            // Prepare chart configuration
+            const chartConfig = {
+                type: chartType,
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: chartSettings.enableAnimations ? 1000 : 0
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            type: scaleType,
+                            title: {
+                                display: true,
+                                text: unitLabel,
+                                font: {
+                                    size: chartSettings.labelSize
+                                }
+                            },
+                            grid: {
+                                display: chartSettings.showGrid && chartSettings.showYGrid,
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                font: {
+                                    size: chartSettings.tickSize
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Input Size',
+                                font: {
+                                    size: chartSettings.labelSize
+                                }
+                            },
+                            grid: {
+                                display: chartSettings.showGrid && chartSettings.showXGrid,
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                font: {
+                                    size: chartSettings.tickSize
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        if (normalizeToBase) {
+                                            label += context.parsed.y.toFixed(2) + '%';
+                                            if (label.includes('(base)')) {
+                                                label = context.dataset.label + ': 100% (baseline)';
+                                            }
+                                        } else {
+                                            label += formatValueWithUnit(context.parsed.y, selectedMetric);
+                                            
+                                            // Add delta if available and not base implementation
+                                            if (showDeltas && 
+                                                !label.includes('(base)') && 
+                                                context.dataset.deltas && 
+                                                context.dataset.deltas[context.dataIndex] !== null) {
+                                                const delta = context.dataset.deltas[context.dataIndex];
+                                                const sign = delta >= 0 ? '+' : '';
+                                                label += ` (${sign}${delta.toFixed(2)}% vs base)`;
+                                            }
+                                        }
+                                    }
+                                    return label;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: chartSettings.legendPosition,
+                            labels: {
+                                font: {
+                                    size: chartSettings.labelSize
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: getMetricTitle(selectedMetric, normalizeToBase),
+                            font: {
+                                size: chartSettings.titleSize
+                            }
+                        }
+                    }
+                },
+                plugins: []
+            };
+            
+            // Add gradient background if enabled
+            if (chartSettings.chartBackground === 'gradient') {
+                chartConfig.plugins.push({
+                    id: 'customCanvasBackgroundColor',
+                    beforeDraw: (chart) => {
+                        const ctx = chart.canvas.getContext('2d');
+                        ctx.save();
+                        const gradient = ctx.createLinearGradient(0, 0, 0, chart.height);
+                        gradient.addColorStop(0, 'rgba(54, 162, 235, 0.1)');
+                        gradient.addColorStop(1, 'rgba(255, 99, 132, 0.1)');
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(0, 0, chart.width, chart.height);
+                        ctx.restore();
+                    }
+                });
+            }
+            
+            // Create or update the chart
+            const ctx = document.getElementById('benchstatChart').getContext('2d');
+            
+            if (benchstatChart) {
+                benchstatChart.destroy();
+            }
+            
+            benchstatChart = new Chart(ctx, chartConfig);
+        }
+        
+        // Update the data table
+        function updateTable() {
+            const selectedMetric = document.getElementById('table-metric-select').value;
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            
+            // Get base implementation index
+            const baseImplName = benchstatData.baseImplementation;
+            
+            // Create table rows for each result
+            benchstatData.results.forEach(result => {
+                const row = document.createElement('tr');
+                
+                // Add size cell
+                const sizeCell = document.createElement('td');
+                sizeCell.textContent = result.size;
+                row.appendChild(sizeCell);
+                
+                // Add cells for each implementation
+                benchstatData.implementations.forEach(implName => {
+                    const metricValues = result.values[selectedMetric];
+                    const implValue = metricValues ? metricValues[implName] : null;
+                    
+                    // Value cell
+                    const valueCell = document.createElement('td');
+                    if (implValue) {
+                        valueCell.textContent = formatValueWithUnit(implValue.value, selectedMetric);
+                    } else {
+                        valueCell.textContent = 'N/A';
+                    }
+                    row.appendChild(valueCell);
+                    
+                    // Delta cell for non-base implementations
+                    if (implName !== baseImplName) {
+                        const deltaCell = document.createElement('td');
+                        if (implValue && implValue.baselineDelta !== undefined) {
+                            const delta = implValue.baselineDelta;
+                            const sign = delta >= 0 ? '+' : '';
+                            deltaCell.textContent = `${sign}${delta.toFixed(2)}%`;
+                            
+                            // Add color based on whether higher or lower is better for this metric
+                            const isTimeBased = selectedMetric.includes('sec/op');
+                            const isBetter = (isTimeBased && delta < 0) || (!isTimeBased && delta > 0);
+                            
+                            if (isBetter) {
+                                deltaCell.className = 'negative-delta';
+                            } else {
+                                deltaCell.className = 'positive-delta';
+                            }
+                        } else {
+                            deltaCell.textContent = 'N/A';
+                        }
+                        row.appendChild(deltaCell);
+                    }
+                });
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Helper function to format values with the appropriate unit
+        function formatValueWithUnit(value, metricUnit) {
+            // Format based on metric units and value unit
+            if (metricUnit.includes('sec/op')) {
+                if (value >= 1000000) {
+                    return `${(value / 1000000).toFixed(2)} ms/op`;
+                } else if (value >= 1000) {
+                    return `${(value / 1000).toFixed(2)} µs/op`;
+                } else {
+                    return `${value.toFixed(2)} ns/op`;
+                }
+            } else if (metricUnit.includes('B/s')) {
+                // For throughput metrics
+                if (value >= 1073741824) { // 1 GiB
+                    return `${(value / 1073741824).toFixed(2)} GiB/s`;
+                } else if (value >= 1048576) { // 1 MiB
+                    return `${(value / 1048576).toFixed(2)} MiB/s`;
+                } else if (value >= 1024) { // 1 KiB
+                    return `${(value / 1024).toFixed(2)} KiB/s`;
+                } else {
+                    return `${value.toFixed(2)} B/s`;
+                }
+            }
+            
+            // Default formatting for unknown units
+            return value.toFixed(2);
+        }
+        
+        // Helper function to get scale info for a metric
+        function getScaleInfoForMetric(metricUnit, normalized) {
+            let unitLabel = metricUnit;
+            let scaleType = 'linear';
+            
+            if (normalized) {
+                unitLabel = 'Relative Performance (%)';
+                return { unitLabel, scaleType };
+            }
+            
+            // Customize based on metric type
+            if (metricUnit.includes('sec/op')) {
+                unitLabel = 'Time (ns/op)';
+            } else if (metricUnit.includes('B/s')) {
+                unitLabel = 'Throughput (B/s)';
+                scaleType = 'logarithmic'; // Use log scale for throughput
+            }
+            
+            return { unitLabel, scaleType };
+        }
+        
+        // Helper function to get a title for the chart
+        function getMetricTitle(metricUnit, normalized) {
+            if (normalized) {
+                return 'Relative Performance (% of baseline)';
+            }
+            
+            // Customize title based on metric type
+            if (metricUnit.includes('sec/op')) {
+                return 'Execution Time (lower is better)';
+            } else if (metricUnit.includes('B/s')) {
+                return 'Throughput (higher is better)';
+            }
+            
+            return `Benchmark Results - ${metricUnit}`;
+        }
+        
+        // Helper function to set alpha of a color
+        function setAlpha(color, alpha) {
+            if (color.startsWith('#')) {
+                const r = parseInt(color.slice(1, 3), 16);
+                const g = parseInt(color.slice(3, 5), 16);
+                const b = parseInt(color.slice(5, 7), 16);
+                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            }
+            return color;
+        }
+        
+        // Update custom color inputs
+        function updateCustomColorInputs() {
+            const container = document.getElementById('custom-colors');
+            container.innerHTML = '';
+            
+            // Get selected implementations and create color inputs for each
+            const selectedImplementations = getSelectedImplementations();
+            selectedImplementations.forEach((implName, index) => {
+                const colorIndex = index % customColors.length;
+                
+                const colorInput = document.createElement('div');
+                colorInput.className = 'color-input';
+                colorInput.innerHTML = `
+                    <input type="color" data-index="${index}" value="${customColors[colorIndex]}">
+                    <span>${implName}</span>
+                `;
+                
+                container.appendChild(colorInput);
+            });
+            
+            // Add event listeners to color inputs
+            document.querySelectorAll('#custom-colors input[type="color"]').forEach(input => {
+                input.addEventListener('change', (event) => {
+                    const index = parseInt(event.target.dataset.index);
+                    customColors[index % customColors.length] = event.target.value;
+                    updateChart();
+                });
+            });
+        }
+        
+        // Export chart as image
+        function exportChart(format) {
+            if (!benchstatChart) return;
+            
+            let mimeType;
+            if (format === 'png') {
+                mimeType = 'image/png';
+            } else if (format === 'svg') {
+                // Chart.js doesn't directly support SVG export, so we'll use PNG
+                mimeType = 'image/png';
+            } else {
+                mimeType = 'image/png';
+            }
+            
+            try {
+                const dataUrl = benchstatChart.toBase64Image(mimeType);
+                
+                // Send the data URL to the extension for saving
+                vscode.postMessage({
+                    command: 'exportChart',
+                    format: format,
+                    dataUrl: dataUrl
+                });
+            } catch (error) {
+                console.error('Failed to export chart:', error);
+            }
+        }
+        
+        // Tab switching function
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Deactivate all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activate the selected tab and content
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+            
+            // Update the appropriate view
+            if (tabId === 'chart-tab') {
+                updateChart();
+            } else if (tabId === 'table-tab') {
+                updateTable();
+            }
+        }
+        
+        // Update settings display
+        function updateSettingsDisplay() {
+            document.getElementById('title-size-value').textContent = `${chartSettings.titleSize}px`;
+            document.getElementById('label-size-value').textContent = `${chartSettings.labelSize}px`;
+            document.getElementById('tick-size-value').textContent = `${chartSettings.tickSize}px`;
+        }
+        
+        // Add event listeners
+        document.querySelectorAll('.implementation-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                updateCustomColorInputs();
+                updateChart();
+            });
+        });
+        
+        document.getElementById('metric-select').addEventListener('change', updateChart);
+        document.getElementById('chart-type').addEventListener('change', updateChart);
+        document.getElementById('show-deltas').addEventListener('change', updateChart);
+        document.getElementById('normalize-to-base').addEventListener('change', updateChart);
+        
+        document.getElementById('table-metric-select').addEventListener('change', updateTable);
+        
+        document.getElementById('export-png').addEventListener('click', () => exportChart('png'));
+        document.getElementById('export-svg').addEventListener('click', () => exportChart('svg'));
+        
+        // Tab navigation
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', (event) => {
+                const tabId = event.target.dataset.tab;
+                switchTab(tabId);
+            });
+        });
+        
+        // Chart settings listeners
+        document.getElementById('show-grid').addEventListener('change', (event) => {
+            chartSettings.showGrid = event.target.checked;
+            updateChart();
+        });
+        
+        document.getElementById('show-x-grid').addEventListener('change', (event) => {
+            chartSettings.showXGrid = event.target.checked;
+            updateChart();
+        });
+        
+        document.getElementById('show-y-grid').addEventListener('change', (event) => {
+            chartSettings.showYGrid = event.target.checked;
+            updateChart();
+        });
+        
+        document.getElementById('point-style').addEventListener('change', (event) => {
+            chartSettings.pointStyle = event.target.value;
+            updateChart();
+        });
+        
+        document.getElementById('enable-animations').addEventListener('change', (event) => {
+            chartSettings.enableAnimations = event.target.checked;
+            updateChart();
+        });
+        
+        document.getElementById('chart-background').addEventListener('change', (event) => {
+            chartSettings.chartBackground = event.target.value;
+            updateChart();
+        });
+        
+        document.getElementById('legend-position').addEventListener('change', (event) => {
+            chartSettings.legendPosition = event.target.value;
+            updateChart();
+        });
+        
+        document.getElementById('title-size').addEventListener('input', (event) => {
+            chartSettings.titleSize = parseInt(event.target.value);
+            updateSettingsDisplay();
+            updateChart();
+        });
+        
+        document.getElementById('label-size').addEventListener('input', (event) => {
+            chartSettings.labelSize = parseInt(event.target.value);
+            updateSettingsDisplay();
+            updateChart();
+        });
+        
+        document.getElementById('tick-size').addEventListener('input', (event) => {
+            chartSettings.tickSize = parseInt(event.target.value);
+            updateSettingsDisplay();
+            updateChart();
+        });
+        
+        document.querySelectorAll('.palette').forEach(palette => {
+            palette.addEventListener('click', (event) => {
+                const paletteElement = event.target.closest('.palette');
+                if (paletteElement) {
+                    const paletteName = paletteElement.dataset.palette;
+                    selectedPalette = paletteName;
+                    customColors = [...colorPalettes[paletteName]];
+                    
+                    // Update selected palette UI
+                    document.querySelectorAll('.palette').forEach(p => {
+                        p.classList.remove('selected');
+                    });
+                    paletteElement.classList.add('selected');
+                    
+                    updateCustomColorInputs();
+                    updateChart();
+                }
+            });
+        });
+        
+        // Initialize the visualization
+        updateSettingsDisplay();
+        updateCustomColorInputs();
+        updateChart();
+        updateTable();
+    </script>
+</body>
+</html>

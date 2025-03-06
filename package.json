@@ -17,7 +17,11 @@
     "commands": [
       {
         "command": "benchvis-vscode.visualize-file",
-        "title": "Benchvis: Visualize File"
+        "title": "Benchvis: Visualize Go Benchmark File"
+      },
+      {
+        "command": "benchvis-vscode.visualize-benchstat",
+        "title": "Benchvis: Visualize Benchstat Results"
       }
     ]
   },
