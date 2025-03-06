@@ -2,26 +2,27 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { promises as fs } from 'fs';
+import { createVisualizationPanel } from './visualization';
 
 // Interfaces for Go benchmark data
-interface BenchmarkMetadata {
+export interface BenchmarkMetadata {
 	goos: string;
 	goarch: string;
 	pkg: string;
 	cpu: string;
 }
 
-interface BenchmarkResult {
+export interface BenchmarkResult {
 	name: string;
 	runs: BenchmarkRun[];
 }
 
-interface Metric {
+export interface Metric {
 	name: string;
 	value: number;
 }
 
-interface BenchmarkRun {
+export interface BenchmarkRun {
 	iterations: number;
 	metrics?: Metric[];
 	params: Map<string, string | undefined>;
@@ -140,7 +141,6 @@ export function activate(context: vscode.ExtensionContext) {
 	// The commandId parameter must match the command field in package.json
 	const disposable = vscode.commands.registerCommand('benchvis-vscode.visualize-file', async () => {
 		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
 		vscode.window.showInformationMessage('Starting benchmark visualization...');
 		const activeEditor = vscode.window.activeTextEditor;
 		if (!activeEditor) {
@@ -156,7 +156,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const content = await fs.readFile(filePath, 'utf8');
 			const benchmarkData = parseGoBenchmarkOutput(content);
 
-			// Log the parsed data for now
+			// Log the parsed data for debugging
 			console.log('Parsed benchmark data:', JSON.stringify(benchmarkData, (key, value) => {
 				// Convert Map objects to regular objects for JSON serialization
 				if (value instanceof Map) {
@@ -165,10 +165,9 @@ export function activate(context: vscode.ExtensionContext) {
 				return value;
 			}, 2));
 
-			vscode.window.showInformationMessage(`Successfully parsed benchmark data with ${benchmarkData.results.length} benchmark(s)`);
-
-			// TODO: Implement visualization of benchmark data
-
+			// Create visualization panel
+			createVisualizationPanel(context, benchmarkData);
+			
 		} catch (error) {
 			console.error(error);
 			vscode.window.showErrorMessage(`Failed to parse benchmark file: ${error}`);
