@@ -1,71 +1,117 @@
-# benchvis-vscode README
+# BenchVis: Go Benchmark Visualization
 
-This is the README for your extension "benchvis-vscode". After writing up a brief description, we recommend including the following sections.
+BenchVis is a VS Code extension for visualizing Go benchmark results. It supports both raw Go benchmark output and `benchstat` formatted comparisons with an interactive, customizable visualization interface.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### Raw Go Benchmark Visualization
 
-For example if there is an image subfolder under your extension project workspace:
+Visualize the results of Go benchmarks directly from test output:
 
-\!\[feature X\]\(images/feature-x.png\)
+- Parse and visualize raw Go benchmark output (`go test -bench` results)
+- Automatically detect and format custom metrics
+- Interactive charts with multiple visualization options
+- Support for various input sizes and benchmark configurations
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+To use this feature:
+1. Run your Go benchmarks and copy the output
+2. Open the output in VS Code
+3. Run the command `BenchVis: Visualize Go Benchmark Output`
+
+### Benchstat Visualization
+
+Visualize and compare benchmark results processed with Go's `benchstat` tool:
+
+- Interactive comparison of multiple benchmark implementations
+- Support for standard benchstat metrics (time, throughput)
+- Delta percentage visualization with color coding
+- Customizable charts with multiple views and options
+
+To use this feature:
+1. Run benchstat to compare benchmark results
+2. Open the benchstat output in VS Code
+3. Run the command `BenchVis: Visualize Benchstat Output`
+
+### Visualization Features
+
+Both visualization modes provide:
+
+- Multiple chart types (bar, line, radar, scatter)
+- Customizable color palettes
+- Chart export functionality (PNG)
+- Interactive data exploration
+- Tabular data view
+- Appearance customization options
+- Support for logarithmic scale for throughput metrics
+- Normalization to baseline implementation
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- VS Code 1.60.0 or higher
+- For generating benchmarks, you need Go installed
 
-## Extension Settings
+The extension has no external dependencies and works with any Go benchmark output.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## Usage
 
-For example:
+### Working with Raw Go Benchmarks
 
-This extension contributes the following settings:
+1. Run your Go benchmarks with:
+   ```sh
+   go test -bench . > benchmarks.txt
+   ```
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+2. Open the benchmark file in VS Code
 
-## Known Issues
+3. Open the command palette (Ctrl+Shift+P / Cmd+Shift+P) and run:
+   ```
+   BenchVis: Visualize Go Benchmark Output
+   ```
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+### Working with Benchstat Output
+
+1. Run benchstat to compare benchmark results:
+   ```sh
+   benchstat old.txt new.txt > comparison.txt
+   ```
+
+2. Open the comparison file in VS Code
+
+3. Open the command palette (Ctrl+Shift+P / Cmd+Shift+P) and run:
+   ```
+   BenchVis: Visualize Benchstat Output
+   ```
+
+## Chart Interface
+
+The visualization interface provides multiple options:
+
+- **Chart View**: The primary visualization with customizable charts
+- **Table View**: Tabular data representation with color-coded deltas
+- **Appearance**: Customize chart settings, fonts, and display options
+
+### Chart Controls
+
+- **Implementations**: Select which benchmark implementations to display
+- **Metric**: Choose between time, throughput, or custom metrics
+- **Chart Type**: Select between bar, line, radar, and scatter charts
+- **Options**: Toggle delta display, normalization, and other features
+- **Colors**: Choose from predefined color palettes or customize colors
+- **Export**: Save charts as PNG images
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
 ### 1.0.0
 
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+Initial release with support for:
+- Raw Go benchmark visualization
+- Benchstat comparison visualization
+- Interactive charts and customization options
 
 ---
 
-## Following extension guidelines
+## Contributing
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+**Enjoy visualizing your Go benchmarks!**

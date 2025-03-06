@@ -154,7 +154,7 @@ function updateVisualizationPanel(
     );
 
     // Read the template file
-    const templatePath = path.join(context.extensionPath, 'src', 'templates', 'visualization.hbs');
+    const templatePath = path.join(context.extensionPath, 'templates', 'visualization.hbs');
     const templateContent = fs.readFileSync(templatePath, 'utf8');
     
     // Compile the template
