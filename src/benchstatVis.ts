@@ -144,7 +144,7 @@ function updateBenchstatVisualizationPanel(
     );
 
     // Read the template file
-    const templatePath = path.join(context.extensionPath, 'src', 'templates', 'benchstat.hbs');
+    const templatePath = path.join(context.extensionPath, 'templates', 'benchstat.hbs');
     const templateContent = fs.readFileSync(templatePath, 'utf8');
     
     // Compile the template
