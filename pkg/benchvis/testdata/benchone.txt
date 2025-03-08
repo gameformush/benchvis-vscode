@@ -1,0 +1,16 @@
+goos: darwin
+goarch: amd64
+pkg: benchvis
+cpu: Intel(R) Core(TM) i9-9980HK CPU @ 2.40GHz
+BenchmarkTest/1-16     	59992872	        19.38 ns/op	         1.000 size	       1 B/op	       1 allocs/op 12 cows/meter
+BenchmarkTest/1-16     	69273589	        18.06 ns/op	         1.000 size	       1 B/op	       1 allocs/op 12 cows/meter
+BenchmarkTest/1-16     	69777583	        17.41 ns/op	         1.000 size	       1 B/op	       1 allocs/op 12 cows/meter
+BenchmarkTest/1-16     	69167574	        17.03 ns/op	         1.000 size	       1 B/op	       1 allocs/op 12 cows/meter
+BenchmarkTest/1-16     	71671498	        16.77 ns/op	         1.000 size	       1 B/op	       1 allocs/op 12 cows/meter
+BenchmarkTest/1-16     	71671498	        16.77 ns/op	         1.000 size	       1 B/op	       1 allocs/op 12 cows/meter
+BenchmarkTest/10-16    	39727372	        31.52 ns/op	        10.00 size	      16 B/op	       1 allocs/op 12 cows/meter
+BenchmarkTest/10-16    	33924459	        33.29 ns/op	        10.00 size	      16 B/op	       1 allocs/op 12 cows/meter
+BenchmarkTest/10-16    	38764453	        34.39 ns/op	        10.00 size	      16 B/op	       1 allocs/op 12 cows/meter
+BenchmarkTest/10-16    	38062602	        31.68 ns/op	        10.00 size	      16 B/op	       1 allocs/op 12 cows/meter
+PASS
+ok  	benchvis	74.104s

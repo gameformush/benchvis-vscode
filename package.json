@@ -21,6 +21,10 @@
         "title": "Benchvis: Visualize Go Benchmark File"
       },
       {
+        "command": "benchvis-vscode.wasm-test",
+        "title": "Benchvis: WASM test"
+      },
+      {
         "command": "benchvis-vscode.visualize-benchstat",
         "title": "Benchvis: Visualize Benchstat Results"
       }
@@ -28,11 +32,11 @@
   },
   "scripts": {
     "vscode:prepublish": "yarn run package",
-    "compile": "yarn run check-types && yarn run lint && node esbuild.js",
+    "compile": "yarn run check-types && yarn run lint && node esbuild.js && GOOS=js GOARCH=wasm go build -o dist/main.wasm",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "yarn run check-types && yarn run lint && node esbuild.js --production",
+    "package": "yarn run check-types && yarn run lint && node esbuild.js --production && GOOS=js GOARCH=wasm go build -o dist/main.wasm",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
