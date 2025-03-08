@@ -107,9 +107,14 @@ function updateVisualizationPanel(
     // Compile the template
     const template = Handlebars.compile(templateContent);
 
+    const chartJsUri = panel.webview.asWebviewUri(
+        vscode.Uri.file(path.join(context.extensionPath, 'node_modules', 'chart.js', 'dist', 'chart.umd.js'))
+    );
+
     // Render the template with data
     const html = template({
         WASM_URL: wasmUri,
+        chartJsUri: chartJsUri,
         cspSource: panel.webview.cspSource,
         nonce: nonce,
         wasmjs: wasmjs

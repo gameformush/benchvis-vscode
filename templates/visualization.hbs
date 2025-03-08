@@ -201,7 +201,7 @@
             <h3>Colors</h3>
             <div class="color-palette">
                 {{#each colorPalettes}}
-                <div class="palette {{#if (eq @key "default")}}selected{{/if}}" data-palette="{{@key}}">
+                <div class="palette {{#if (eq @key " default")}}selected{{/if}}" data-palette="{{@key}}">
                     {{#each this}}
                     {{#if (lt @index 5)}}
                     <div class="palette-color" style="background-color: {{this}}"></div>
@@ -209,12 +209,12 @@
                     {{/each}}
                 </div>
                 {{/each}}
-        </div>
+            </div>
 
-        <div id="custom-colors" class="custom-colors">
-            <!-- Custom color inputs will be added dynamically -->
+            <div id="custom-colors" class="custom-colors">
+                <!-- Custom color inputs will be added dynamically -->
+            </div>
         </div>
-    </div>
     </div>
 
     <div class="chart-container">
@@ -450,14 +450,14 @@
             if (option) {
                 return option.text;
             }
-            
+
             // Fallback to basic formatting
             switch (metric) {
                 case 'ns/op': return 'Time (ns/op)';
                 case 'B/op': return 'Memory (B/op)';
                 case 'allocs/op': return 'Allocations (allocs/op)';
                 case 'size': return 'Size';
-                default: 
+                default:
                     // Format custom metrics
                     return metric
                         .replace(/_/g, ' ')
@@ -512,12 +512,12 @@
                             }
                         }
                     }
-                    
+
                     // For decimal values, round to 2 decimal places
                     if (Math.floor(value) !== value) {
                         return value.toFixed(2);
                     }
-                    
+
                     // Default formatting
                     return `${value}`;
             }

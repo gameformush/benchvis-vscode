@@ -39,8 +39,6 @@ func parseBenchmarkFiles(this js.Value, callArgs []js.Value) any {
 			"error": err.Error(),
 		})
 	}
-	
-	println("WHAAAAAAA")
 
 	return js.ValueOf(map[string]any{
 		"data":  string(dataBy),
