@@ -1,0 +1,26 @@
+pkg: hash/crc32
+goarch: amd64
+goos: darwin
+                                        │ ./testdata/crc-old-small.txt │    ./testdata/crc-new-small.txt    │
+                                        │            sec/op            │   sec/op     vs base               │
+CRC32/poly=IEEE/size=15/align=0-8                          46.55n ± 9%   44.40n ± 2%  -4.62% (p=0.008 n=10)
+CRC32/poly=IEEE/size=15/align=1-8                          44.35n ± 3%   44.35n ± 1%       ~ (p=0.539 n=10)
+CRC32/poly=IEEE/size=40/align=0-8                          41.05n ± 3%   42.45n ± 3%  +3.41% (p=0.006 n=10)
+CRC32/poly=IEEE/size=40/align=1-8                          41.05n ± 1%   41.90n ± 2%  +2.07% (p=0.003 n=10)
+CRC32/poly=Castagnoli/size=15/align=0-8                    16.50n ± 3%   16.30n ± 2%       ~ (p=0.642 n=10)
+CRC32/poly=Castagnoli/size=15/align=1-8                    17.20n ± 2%   17.35n ± 3%       ~ (p=0.959 n=10)
+CRC32/poly=Castagnoli/size=40/align=0-8                    17.45n ± 1%   17.45n ± 3%       ~ (p=0.694 n=10)
+CRC32/poly=Castagnoli/size=40/align=1-8                    19.75n ± 2%   19.35n ± 2%  -2.03% (p=0.036 n=10)
+geomean                                                    27.64n        27.58n       -0.22%
+
+                                        │ ./testdata/crc-old-small.txt │    ./testdata/crc-new-small.txt     │
+                                        │             B/s              │     B/s       vs base               │
+CRC32/poly=IEEE/size=15/align=0-8                         307.3Mi ± 8%   322.1Mi ± 2%  +4.84% (p=0.009 n=10)
+CRC32/poly=IEEE/size=15/align=1-8                         322.3Mi ± 3%   322.7Mi ± 1%       ~ (p=0.579 n=10)
+CRC32/poly=IEEE/size=40/align=0-8                         929.5Mi ± 3%   898.1Mi ± 3%  -3.38% (p=0.011 n=10)
+CRC32/poly=IEEE/size=40/align=1-8                         928.5Mi ± 1%   909.9Mi ± 2%  -2.00% (p=0.005 n=10)
+CRC32/poly=Castagnoli/size=15/align=0-8                   866.4Mi ± 3%   876.8Mi ± 2%       ~ (p=0.529 n=10)
+CRC32/poly=Castagnoli/size=15/align=1-8                   829.4Mi ± 2%   824.4Mi ± 2%       ~ (p=0.971 n=10)
+CRC32/poly=Castagnoli/size=40/align=0-8                   2.138Gi ± 1%   2.135Gi ± 2%       ~ (p=0.684 n=10)
+CRC32/poly=Castagnoli/size=40/align=1-8                   1.889Gi ± 2%   1.923Gi ± 1%       ~ (p=0.063 n=10)
+geomean                                                   845.1Mi        846.8Mi       +0.20%

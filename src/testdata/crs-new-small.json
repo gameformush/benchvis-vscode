@@ -1,0 +1,145 @@
+[
+    {
+      ".unit": "sec/op",
+      "assumption": "median",
+      "cells": {
+        "15": {
+          "0": {
+            "center": 3.0700000000000004e-8,
+            "range": "46%",
+            "warnings": [
+              "benchmarks vary in .fullname"
+            ]
+          },
+          "1": {
+            "center": 3.1150000000000004e-8,
+            "comparison": {
+              "delta": "~",
+              "nSamples": 40,
+              "pValue": 0.3214123644312662
+            },
+            "range": "44%",
+            "warnings": [
+              "benchmarks vary in .fullname"
+            ]
+          }
+        },
+        "40": {
+          "0": {
+            "center": 2.95e-8,
+            "range": "40%",
+            "warnings": [
+              "benchmarks vary in .fullname"
+            ]
+          },
+          "1": {
+            "center": 3.0550000000000006e-8,
+            "comparison": {
+              "delta": "~",
+              "nSamples": 40,
+              "pValue": 0.06808752739596942
+            },
+            "range": "36%",
+            "warnings": [
+              "benchmarks vary in .fullname"
+            ]
+          }
+        }
+      },
+      "cols": [
+        "0",
+        "1"
+      ],
+      "goarch": "amd64",
+      "goos": "darwin",
+      "pkg": "hash/crc32",
+      "rows": [
+        "15",
+        "40"
+      ],
+      "summary": {
+        "0": {
+          "value": 3.009401933939695e-8
+        },
+        "1": {
+          "pctChange": "+2.51%",
+          "ratio": 1.0250721562519904,
+          "value": 3.0848541294524814e-8
+        }
+      },
+      "summaryLabel": "geomean",
+      "unit": "sec/op"
+    },
+    {
+      ".unit": "B/s",
+      "assumption": "median",
+      "cells": {
+        "15": {
+          "0": {
+            "center": 589955000,
+            "range": "53%",
+            "warnings": [
+              "benchmarks vary in .fullname"
+            ]
+          },
+          "1": {
+            "center": 575665000,
+            "comparison": {
+              "delta": "~",
+              "nSamples": 40,
+              "pValue": 0.31183730475831367
+            },
+            "range": "50%",
+            "warnings": [
+              "benchmarks vary in .fullname"
+            ]
+          }
+        },
+        "40": {
+          "0": {
+            "center": 1589615000,
+            "range": "43%",
+            "warnings": [
+              "benchmarks vary in .fullname"
+            ]
+          },
+          "1": {
+            "center": 1472945000,
+            "comparison": {
+              "delta": "~",
+              "nSamples": 40,
+              "pValue": 0.06806027503533121
+            },
+            "range": "38%",
+            "warnings": [
+              "benchmarks vary in .fullname"
+            ]
+          }
+        }
+      },
+      "cols": [
+        "0",
+        "1"
+      ],
+      "goarch": "amd64",
+      "goos": "darwin",
+      "pkg": "hash/crc32",
+      "rows": [
+        "15",
+        "40"
+      ],
+      "summary": {
+        "0": {
+          "value": 968401423.6487876
+        },
+        "1": {
+          "pctChange": "-4.91%",
+          "ratio": 0.9508735319818477,
+          "value": 920827282.081174
+        }
+      },
+      "summaryLabel": "geomean",
+      "unit": "B/s"
+    }
+  ]
+  
