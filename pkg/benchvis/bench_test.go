@@ -17,13 +17,12 @@ import (
 )
 
 func TestParseBenchmarkFiles(t *testing.T) {
-	data, err := os.ReadFile("./testdata/benchone.txt")
+	data, err := os.ReadFile("./testdata/bench_arm64.txt")
 	require.NoError(t, err)
 
 	res, _, err := ParseBenchmarkFiles([]string{"test-file.text"}, []string{string(data)})
 	require.NoError(t, err)
 
-	BenchFmtResultToResult(res)
 	resBy, err := json.MarshalIndent(res, "", "   ")
 	require.NoError(t, err)
 	println(string(resBy))

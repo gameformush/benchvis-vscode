@@ -158,7 +158,7 @@
 			border-radius: 5px;
 			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 		}
-
+		
 		.error-message {
 			color: var(--vscode-errorForeground);
 			background-color: var(--vscode-inputValidation-errorBackground);
@@ -168,14 +168,13 @@
 			border-radius: 5px;
 		}
 	</style>
-	<title>Benchmark Visualization</title>
 </head>
 
 <body>
 	<h1>Benchmark Visualization</h1>
-
+	
 	<div id="error-container"></div>
-
+	
 	<div class="controls">
 		<div class="control-group">
 			<h3>Benchmarks</h3>
@@ -183,14 +182,14 @@
 				<!-- Benchmarks will be populated here -->
 			</div>
 		</div>
-
+		
 		<div class="control-group">
 			<h3>Metrics</h3>
 			<label for="metric-select">Metric:</label>
 			<select id="metric-select">
 				<!-- Metrics will be populated here -->
 			</select>
-
+			
 			<label for="chart-type">Chart Type:</label>
 			<select id="chart-type">
 				<option value="bar">Bar Chart</option>
@@ -200,7 +199,7 @@
 				<option value="doughnut">Doughnut</option>
 			</select>
 		</div>
-
+		
 		<div class="control-group">
 			<h3>Colors</h3>
 			<div class="color-palette">
@@ -222,7 +221,7 @@
 			</div>
 		</div>
 	</div>
-
+	
 	<div class="chart-container">
 		<canvas id="benchmarkChart"></canvas>
 	</div>
@@ -233,14 +232,24 @@
 			default: ['#4285F4', '#EA4335', '#FBBC05', '#34A853', '#8E24AA', '#0097A7', '#00C853', '#FF6D00'],
 			pastel: ['#ff9aa2', '#c7ceea', '#b5ead7', '#ffdac1', '#e2f0cb', '#c5a3ff', '#9de3d0', '#f6c3b7']
 		};
-
+		
 		let selectedPalette = 'default';
 		let customColors = [...colorPalettes.default];
-
+		
 		// Initialize chart
 		let benchmarkChart = null;
 		let benchmarkResults = [];
-
+		
+		// Check if Chart.js is available
+		window.addEventListener('load', function() {
+			if (typeof Chart === 'undefined') {
+				showError("Chart.js library is not loaded. Unable to display visualization.");
+				console.error("Chart.js is not defined");
+			} else {
+				console.log("Chart.js is loaded successfully");
+			}
+		});
+		
 		// Show error message
 		function showError(message) {
 			const errorContainer = document.getElementById('error-container');
@@ -250,7 +259,7 @@
 			errorContainer.innerHTML = '';
 			errorContainer.appendChild(errorDiv);
 		}
-
+		
 		// Helper function to set alpha of a color
 		function setAlpha(color, alpha) {
 			if (color.startsWith('#')) {
@@ -261,7 +270,7 @@
 			}
 			return color;
 		}
-
+		
 		// Helper function to format metric values
 		function formatMetricValue(value, metric) {
 			if (metric === 'sec/op') {
@@ -291,33 +300,33 @@
 				if (Math.floor(value) !== value) {
 					return value.toFixed(2) + ' ' + metric;
 				}
-
+				
 				// Default formatting
 				return `${value} ${metric}`;
 			}
 		}
-
+		
 		// Update custom color inputs
 		function updateCustomColorInputs() {
 			const container = document.getElementById('custom-colors');
 			container.innerHTML = '';
-
+			
 			// Get selected benchmarks and create color inputs for each
 			const checkboxes = document.querySelectorAll('.benchmark-checkbox:checked');
 			Array.from(checkboxes).forEach((checkbox, index) => {
 				const name = checkbox.nextElementSibling.textContent;
 				const colorIndex = index % customColors.length;
-
+				
 				const colorInput = document.createElement('div');
 				colorInput.className = 'color-input';
 				colorInput.innerHTML = `
 					<input type="color" data-index="${index}" value="${customColors[colorIndex]}">
 					<span>${name}</span>
 				`;
-
+				
 				container.appendChild(colorInput);
 			});
-
+			
 			// Add event listeners to color inputs
 			document.querySelectorAll('#custom-colors input[type="color"]').forEach(input => {
 				input.addEventListener('change', (event) => {
@@ -332,14 +341,14 @@
 				});
 			});
 		}
-
+		
 		// Acquire VS Code API
 		const vscode = acquireVsCodeApi();
-
+		
 		// WASM Setup
 		const WASM_URL = '{{{WASM_URL}}}';
 		let wasm;
-
+		
 		function init() {
 			const go = new Go();
 			if ('instantiateStreaming' in WebAssembly) {
@@ -368,9 +377,9 @@
 				})
 			}
 		}
-
+		
 		init();
-
+		
 		// Helper function to format metric names for display
 		function formatMetricName(metricName) {
 			switch (metricName) {
@@ -387,61 +396,68 @@
 						.replace(/\b\w/g, c => c.toUpperCase());
 			}
 		}
-
+		
 		// Get metric value from a benchmark result
 		function getResultMetricValue(result, metricName) {
 			if (!result || !result.values || !Array.isArray(result.values)) {
 				return null;
 			}
-
+			
 			const metric = result.values.find(v => v && v.unit === metricName);
 			return metric ? metric.value : null;
 		}
-
+		
 		// Get selected benchmarks from the UI
 		function getSelectedBenchmarks(results) {
 			if (!results || !Array.isArray(results)) {
 				return [];
 			}
-
+			
 			const checkboxes = document.querySelectorAll('.benchmark-checkbox:checked');
-			const selectedNames = Array.from(checkboxes).map(checkbox =>
+			const selectedNames = Array.from(checkboxes).map(checkbox => 
 				checkbox.nextElementSibling.textContent);
-
+			
 			return results.filter(result => result && selectedNames.includes(result.name));
 		}
-
+		
 		// Process benchmark results and prepare data for visualization
 		function processBenchmarkResults(results) {
 			try {
 				// Clear any previous errors
 				document.getElementById('error-container').innerHTML = '';
-
+				
 				if (!results) {
 					showError("No benchmark results returned from WASM function");
 					console.error("No results from parseBenchmarkFiles");
 					return;
 				}
-
+				
 				if (!Array.isArray(results)) {
 					showError("Invalid benchmark results format: not an array");
 					console.error("Results is not an array:", results);
 					return;
 				}
-
+				
 				if (results.length === 0) {
 					showError("No benchmark results found in data");
 					console.error("Empty results array");
 					return;
 				}
-
+				
+				// Check if Chart.js is available
+				if (typeof Chart === 'undefined') {
+					showError("Chart.js library is not loaded. Unable to display visualization.");
+					console.error("Chart.js is not defined");
+					return;
+				}
+				
 				benchmarkResults = results;
 				console.log("Processing benchmark results:", results);
-
+				
 				// Extract available metrics from results
 				const availableMetrics = [];
 				let metricsFound = false;
-
+				
 				// Look through all results for metrics
 				for (let i = 0; i < results.length; i++) {
 					const result = results[i];
@@ -461,13 +477,13 @@
 						metricsFound = true;
 					}
 				}
-
+				
 				if (!metricsFound) {
 					showError("No valid metrics found in benchmark results");
 					console.error("No valid metrics in results");
 					return;
 				}
-
+				
 				// Populate metric selection dropdown
 				const metricSelect = document.getElementById('metric-select');
 				metricSelect.innerHTML = '';
@@ -477,11 +493,11 @@
 					option.textContent = metric.displayName;
 					metricSelect.appendChild(option);
 				});
-
+				
 				// Create benchmark list for selection
 				const benchmarkList = document.getElementById('benchmark-list');
 				benchmarkList.innerHTML = '';
-
+				
 				// Group results by name to avoid duplicates in the list
 				const benchmarkNames = new Set();
 				results.forEach(result => {
@@ -489,32 +505,32 @@
 						benchmarkNames.add(result.name);
 					}
 				});
-
+				
 				if (benchmarkNames.size === 0) {
 					showError("No valid benchmark names found in results");
 					console.error("No valid benchmark names");
 					return;
 				}
-
+				
 				// Add benchmarks to list
 				Array.from(benchmarkNames).sort().forEach((name, index) => {
 					const item = document.createElement('div');
 					item.className = 'benchmark-item';
-
+					
 					const checkbox = document.createElement('input');
 					checkbox.type = 'checkbox';
 					checkbox.className = 'benchmark-checkbox';
 					checkbox.dataset.index = index;
 					checkbox.checked = true; // Default to checked
-
+					
 					const label = document.createElement('label');
 					label.textContent = name;
-
+					
 					item.appendChild(checkbox);
 					item.appendChild(label);
 					benchmarkList.appendChild(item);
 				});
-
+				
 				// Add event listeners to checkboxes
 				document.querySelectorAll('.benchmark-checkbox').forEach(checkbox => {
 					checkbox.addEventListener('change', () => {
@@ -527,7 +543,7 @@
 						}
 					});
 				});
-
+				
 				// Update metric selection event listener
 				document.getElementById('metric-select').addEventListener('change', () => {
 					try {
@@ -537,7 +553,7 @@
 						console.error(error);
 					}
 				});
-
+				
 				document.getElementById('chart-type').addEventListener('change', () => {
 					try {
 						updateChart(results);
@@ -546,7 +562,7 @@
 						console.error(error);
 					}
 				});
-
+				
 				// Setup color palette selection
 				document.querySelectorAll('.palette').forEach(palette => {
 					palette.addEventListener('click', (event) => {
@@ -556,13 +572,13 @@
 								const paletteName = paletteElement.dataset.palette;
 								selectedPalette = paletteName;
 								customColors = [...colorPalettes[paletteName]];
-
+								
 								// Update selected palette UI
 								document.querySelectorAll('.palette').forEach(p => {
 									p.classList.remove('selected');
 								});
 								paletteElement.classList.add('selected');
-
+								
 								updateCustomColorInputs();
 								updateChart(results);
 							}
@@ -572,7 +588,7 @@
 						}
 					});
 				});
-
+				
 				// Initialize chart
 				updateCustomColorInputs();
 				updateChart(results);
@@ -581,33 +597,40 @@
 				console.error("Error in processBenchmarkResults:", error);
 			}
 		}
-
+		
 		// Update chart with benchmark results
 		function updateChart(results) {
 			try {
+				// Check if Chart.js is loaded
+				if (typeof Chart === 'undefined') {
+					showError("Chart.js library is not loaded. Unable to display visualization.");
+					console.error("Chart.js is not defined");
+					return;
+				}
+				
 				if (!results || !Array.isArray(results) || results.length === 0) {
 					showError("No valid benchmark results to visualize");
 					return;
 				}
-
+				
 				const selectedBenchmarks = getSelectedBenchmarks(results);
 				const selectedMetric = document.getElementById('metric-select').value;
 				const chartType = document.getElementById('chart-type').value;
-
+				
 				if (selectedBenchmarks.length === 0) {
 					console.warn("No benchmarks selected");
 					return;
 				}
-
+				
 				if (!selectedMetric) {
 					console.warn("No metric selected");
 					return;
 				}
-
+				
 				// Prepare chart data
 				const datasets = [];
 				const benchmarkNamesSet = new Set();
-
+				
 				// Group by benchmark name
 				const benchmarksByName = {};
 				selectedBenchmarks.forEach(benchmark => {
@@ -619,28 +642,28 @@
 						benchmarksByName[benchmark.name].push(benchmark);
 					}
 				});
-
+				
 				if (benchmarkNamesSet.size === 0) {
 					console.warn("No valid benchmark names found");
 					return;
 				}
-
+				
 				// Create a dataset for each unique benchmark name
 				const benchmarkNames = Array.from(benchmarkNamesSet).sort();
 				benchmarkNames.forEach((name, index) => {
 					const benchmarks = benchmarksByName[name];
 					if (!benchmarks || benchmarks.length === 0) return;
-
+					
 					// Get values for this benchmark
-					const dataPoints = benchmarks.map(benchmark =>
+					const dataPoints = benchmarks.map(benchmark => 
 						getResultMetricValue(benchmark, selectedMetric));
-
+					
 					// Only add dataset if we have valid data
 					if (dataPoints.some(value => value !== null)) {
 						// Get color for this benchmark
 						const colorIndex = index % customColors.length;
 						const baseColor = customColors[colorIndex];
-
+						
 						// Create dataset
 						const dataset = {
 							label: name,
@@ -655,19 +678,19 @@
 							pointHoverBackgroundColor: '#fff',
 							pointHoverBorderColor: baseColor
 						};
-
+						
 						datasets.push(dataset);
 					}
 				});
-
+				
 				if (datasets.length === 0) {
 					console.warn("No datasets created - no valid data for selected metric");
 					return;
 				}
-
+				
 				// Determine chart labels based on benchmark configurations
 				let chartLabels = [];
-
+				
 				if (selectedBenchmarks.length > 0) {
 					// Try to find a good differentiating key in the config
 					const configKeys = new Set();
@@ -680,7 +703,7 @@
 							});
 						}
 					});
-
+					
 					// If we have configs, try to use them as labels
 					if (configKeys.size > 0) {
 						// Find keys that have different values across benchmarks
@@ -696,7 +719,7 @@
 							});
 							return values.size > 1;
 						});
-
+						
 						if (differentiatingKeys.length > 0) {
 							// Use the first differentiating key
 							const key = differentiatingKeys[0];
@@ -710,7 +733,7 @@
 						}
 					}
 				}
-
+				
 				// If we couldn't determine labels from config, use benchmark names or indices
 				if (chartLabels.length === 0) {
 					if (chartType === 'bar' || chartType === 'line') {
@@ -720,14 +743,14 @@
 						chartLabels = selectedBenchmarks.map((_, i) => `Run ${i + 1}`);
 					}
 				}
-
+				
 				// Make sure chartLabels has same length as data if we have datasets
 				if (datasets.length > 0 && datasets[0].data && datasets[0].data.length > 0) {
 					while (chartLabels.length < datasets[0].data.length) {
 						chartLabels.push(`Item ${chartLabels.length + 1}`);
 					}
 				}
-
+				
 				// Prepare chart configuration
 				const chartConfig = {
 					type: chartType,
@@ -756,7 +779,7 @@
 						plugins: {
 							tooltip: {
 								callbacks: {
-									label: function (context) {
+									label: function(context) {
 										let label = context.dataset.label || '';
 										if (label) {
 											label += ': ';
@@ -778,29 +801,34 @@
 						}
 					}
 				};
-
+				
 				// Create or update the chart
-				const ctx = document.getElementById('benchmarkChart').getContext('2d');
-
-				if (benchmarkChart) {
-					benchmarkChart.destroy();
+				try {
+					const ctx = document.getElementById('benchmarkChart').getContext('2d');
+					
+					if (benchmarkChart) {
+						benchmarkChart.destroy();
+					}
+					
+					benchmarkChart = new Chart(ctx, chartConfig);
+					
+					// Send message to the extension with the selected options
+					vscode.postMessage({
+						command: 'updateVisualization',
+						selectedBenchmarks: benchmarkNames,
+						selectedMetric,
+						chartType
+					});
+				} catch (chartError) {
+					showError(`Failed to create chart: ${chartError.message}`);
+					console.error("Chart creation error:", chartError);
 				}
-
-				benchmarkChart = new Chart(ctx, chartConfig);
-
-				// Send message to the extension with the selected options
-				vscode.postMessage({
-					command: 'updateVisualization',
-					selectedBenchmarks: benchmarkNames,
-					selectedMetric,
-					chartType
-				});
 			} catch (error) {
 				showError(`Error creating chart: ${error.message}`);
 				console.error("Error in updateChart:", error);
 			}
 		}
-
+		
 		// Handle messages from the extension
 		window.addEventListener("message", (event) => {
 			try {
@@ -813,16 +841,53 @@
 								showError("No benchmark data provided");
 								return;
 							}
-
-							const results = parseBenchmarkFiles(JSON.stringify(event.data.data));
-							console.log("Parsed benchmark results:", results);
-							if (results.error) {
-								showError(results.error)
-								return
+							
+							let dataToProcess;
+							
+							// Check if data is a string or an object with data property
+							if (typeof event.data.data === 'string') {
+								dataToProcess = event.data.data;
+							} else if (event.data.data && typeof event.data.data.data === 'string') {
+								// The data is nested in a data property
+								dataToProcess = event.data.data.data;
+							} else {
+								// Otherwise try to stringify it
+								dataToProcess = JSON.stringify(event.data.data);
 							}
-
-							// Process benchmark results
-							processBenchmarkResults(JSON.parse(results.data));
+							
+							// If dataToProcess is already a string that looks like JSON, don't stringify it again
+							const jsonData = typeof dataToProcess === 'string' && 
+								(dataToProcess.startsWith('[') || dataToProcess.startsWith('{')) ?
+								dataToProcess : JSON.stringify(dataToProcess);
+							
+							console.log("JSON data for parsing:", jsonData.substring(0, 100) + "...");
+							
+							try {
+								const results = parseBenchmarkFiles(jsonData);
+								console.log("Parsed benchmark results:", results);
+								
+								if (typeof results === 'object' && results !== null && results.data) {
+									// Handle WASM response format with data and error properties
+									if (results.error) {
+										showError(`WASM parsing error: ${results.error}`);
+										return;
+									}
+									
+									try {
+										const parsedData = JSON.parse(results.data);
+										processBenchmarkResults(parsedData);
+									} catch (parseError) {
+										showError(`Error parsing WASM results data: ${parseError.message}`);
+										console.error("JSON parse error:", parseError);
+									}
+								} else {
+									// Direct array result
+									processBenchmarkResults(results);
+								}
+							} catch (wasmError) {
+								showError(`WASM function error: ${wasmError.message}`);
+								console.error("WASM error:", wasmError);
+							}
 						} catch (error) {
 							showError(`Error parsing benchmark data: ${error.message}`);
 							console.error("Error in parseBenchmarkFiles:", error);

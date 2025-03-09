@@ -32,8 +32,8 @@ type Value struct {
 	OrigUnit  string  `json:"orig_unit"`
 }
 
-func ParseBenchmarkFiles(paths []string, data []string) ([]*benchfmt.Result, map[benchfmt.UnitMetadataKey]*benchfmt.UnitMetadata, error) {
-	res := make([]*benchfmt.Result, len(data))
+func ParseBenchmarkFiles(paths []string, data []string) ([]Result, map[benchfmt.UnitMetadataKey]*benchfmt.UnitMetadata, error) {
+	res := make([]Result, 0, len(data))
 	var errs error
 	files := benchfmt.Files{Paths: paths, Data: data, AllowStdin: false, AllowLabels: true}
 	for files.Scan() {
@@ -43,44 +43,30 @@ func ParseBenchmarkFiles(paths []string, data []string) ([]*benchfmt.Result, map
 			// but keep going.
 			errs = errors.Join(errs, rec)
 		case *benchfmt.Result:
-			res = append(res, rec)
+			res = append(res, Result{
+				Config: lo.Map(rec.Config, func(c benchfmt.Config, _ int) RConfig {
+					return RConfig{
+						Key:   c.Key,
+						Value: string(c.Value),
+						File:  c.File,
+					}
+				}),
+				Name:  string(rec.Name),
+				Iters: rec.Iters,
+				Values: lo.Map(rec.Values, func(v benchfmt.Value, _ int) Value {
+					return Value{
+						Value:     v.Value,
+						Unit:      v.Unit,
+						OrigValue: v.OrigValue,
+						OrigUnit:  v.OrigUnit,
+					}
+				}),
+			})
 		}
 	}
 
 	errs = errors.Join(errs, files.Err())
-
 	return res, files.Units(), errs
-}
-
-func BenchFmtResultToResult(r []*benchfmt.Result) []Result {
-	results := make([]Result, 0, len(r))
-	for _, res := range r {
-		if res == nil {
-			println("res nil")
-			continue
-		}
-		results = append(results, Result{
-			Config: lo.Map(res.Config, func(c benchfmt.Config, _ int) RConfig {
-				return RConfig{
-					Key:   c.Key,
-					Value: string(c.Value),
-					File:  c.File,
-				}
-			}),
-			Name:  string(res.Name),
-			Iters: res.Iters,
-			Values: lo.Map(res.Values, func(v benchfmt.Value, _ int) Value {
-				return Value{
-					Value:     v.Value,
-					Unit:      v.Unit,
-					OrigValue: v.OrigValue,
-					OrigUnit:  v.OrigUnit,
-				}
-			}),
-		})
-	}
-	fmt.Printf("%#v", results)
-	return results
 }
 
 type Config struct {
@@ -117,7 +103,7 @@ func (c *Config) Defaults() {
 	}
 }
 
-func BuildBenchstat(cfg *Config, benchs []*benchfmt.Result, units map[benchfmt.UnitMetadataKey]*benchfmt.UnitMetadata) (*benchtab.Tables, error) {
+func BuildBenchstat(cfg *Config, paths []string, data []string) (*benchtab.Tables, error) {
 	cfg.Defaults()
 
 	var parser benchproc.ProjectionParser
@@ -149,16 +135,25 @@ func BuildBenchstat(cfg *Config, benchs []*benchfmt.Result, units map[benchfmt.U
 	}
 
 	stat := benchtab.NewBuilder(tableBy, rowBy, colBy, residue)
-	for _, bench := range benchs {
-		if ok, err := filter.Apply(bench); !ok {
-			if err != nil {
-				// Print the reason we rejected this result.
-				fmt.Println(err)
+	var errs error
+	files := benchfmt.Files{Paths: paths, Data: data, AllowStdin: false, AllowLabels: true}
+	for files.Scan() {
+		switch rec := files.Result(); rec := rec.(type) {
+		case *benchfmt.SyntaxError:
+			// Non-fatal result parse error. Warn
+			// but keep going.
+			errs = errors.Join(errs, rec)
+		case *benchfmt.Result:
+			if ok, err := filter.Apply(rec); !ok {
+				if err != nil {
+					// Print the reason we rejected this result.
+					fmt.Println(err)
+				}
+				continue
 			}
-			continue
-		}
 
-		stat.Add(bench)
+			stat.Add(rec)
+		}
 	}
 
 	tables := stat.ToTables(benchtab.TableOpts{
@@ -166,7 +161,7 @@ func BuildBenchstat(cfg *Config, benchs []*benchfmt.Result, units map[benchfmt.U
 		Thresholds: &benchmath.Thresholds{
 			CompareAlpha: *cfg.CompareAlpha,
 		},
-		Units: units,
+		Units: files.Units(),
 	})
 
 	return tables, nil

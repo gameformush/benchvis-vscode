@@ -12,5 +12,7 @@ BenchmarkTest/10-16    	39727372	        31.52 ns/op	        10.00 size	      16
 BenchmarkTest/10-16    	33924459	        33.29 ns/op	        10.00 size	      16 B/op	       1 allocs/op 12 cows/meter
 BenchmarkTest/10-16    	38764453	        34.39 ns/op	        10.00 size	      16 B/op	       1 allocs/op 12 cows/meter
 BenchmarkTest/10-16    	38062602	        31.68 ns/op	        10.00 size	      16 B/op	       1 allocs/op 12 cows/meter
+BenchmarkTest/10-16    	38062602	        31.68 ns/op	        10.00 size	      16 B/op	       1 allocs/op 12 cows/meter
+BenchmarkTest/10-16    	38062602	        31.68 ns/op	        10.00 size	      16 B/op	       1 allocs/op 12 cows/meter
 PASS
 ok  	benchvis	74.104s

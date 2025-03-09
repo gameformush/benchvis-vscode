@@ -33,7 +33,7 @@ func parseBenchmarkFiles(this js.Value, callArgs []js.Value) any {
 		})
 	}
 
-	dataBy, err := json.Marshal(benchvis.BenchFmtResultToResult(results))
+	dataBy, err := json.Marshal(results)
 	if err != nil {
 		return js.ValueOf(map[string]any{
 			"error": err.Error(),
@@ -55,13 +55,7 @@ func BuildBenchstat(this js.Value, callArgs []js.Value) any {
 		})
 	}
 
-	results, units, err := benchvis.ParseBenchmarkFiles(args.Paths, args.Data)
-	if err != nil {
-		return js.ValueOf(map[string]any{
-			"error": err.Error(),
-		})
-	}
-	stats, err := benchvis.BuildBenchstat(&args.Config, results, units)
+	stats, err := benchvis.BuildBenchstat(&args.Config, args.Paths, args.Data)
 	if err != nil {
 		return js.ValueOf(map[string]any{
 			"error": err.Error(),
