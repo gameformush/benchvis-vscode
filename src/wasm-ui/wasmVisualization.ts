@@ -120,7 +120,10 @@ declare global {
 // Color Palettes
 const COLOR_PALETTES = {
     default: ['#4285F4', '#EA4335', '#FBBC05', '#34A853', '#8E24AA', '#0097A7', '#00C853', '#FF6D00'],
-    pastel: ['#ff9aa2', '#c7ceea', '#b5ead7', '#ffdac1', '#e2f0cb', '#c5a3ff', '#9de3d0', '#f6c3b7']
+    pastel: ['#ff9aa2', '#c7ceea', '#b5ead7', '#ffdac1', '#e2f0cb', '#c5a3ff', '#9de3d0', '#f6c3b7'],
+    vibrant: ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6'],
+    dark: ['#1b1b1b', '#4a4a4a', '#6e6e6e', '#8e8e8e', '#b0b0b0', '#d4d4d4', '#f0f0f0', '#ffffff'],
+    ocean: ['#0077be', '#00aaff', '#00e5ff', '#00ffcc', '#00ff99', '#00ff66', '#00ff33', '#00ff00']
 };
 
 interface File {
