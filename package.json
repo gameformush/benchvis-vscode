@@ -3,7 +3,7 @@
   "displayName": "Benchmarks Visualization for Visual Studio Code",
   "description": "Visualize and analyze Go benchmark results directly in Visual Studio Code",
   "repository": "https://github.com/gameformush/benchvis-vscode",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "icon": "icon.png",
   "engines": {
     "vscode": "^1.97.0"
