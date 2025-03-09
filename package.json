@@ -15,6 +15,15 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "benchvis-vscode.wasm-selected",
+          "group": "3_compare",
+          "title": "Benchvis: compare multiple"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "benchvis-vscode.visualize-file",
@@ -27,6 +36,10 @@
       {
         "command": "benchvis-vscode.visualize-benchstat",
         "title": "Benchvis: Visualize Benchstat Results"
+      },
+      {
+        "command": "benchvis-vscode.wasm-selected",
+        "title": "Benchvis: compare multiple"
       }
     ]
   },

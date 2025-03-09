@@ -14,15 +14,16 @@ Handlebars.registerHelper('eq', function (a, b) {
 
 // Visualization panel singleton
 let currentPanel: vscode.WebviewPanel | undefined = undefined;
+let disposableListener: vscode.Disposable | undefined = undefined;
 
 /**
  * Creates or reveals a webview panel for visualizing benchmark data
  * @param context Extension context
- * @param filePath The path to the benchmark file
- * @param content The content of the benchmark file
+ * @param filePaths The path to the benchmark file
+ * @param contents The content of the benchmark file
  */
 export function createVisualizationPanel(
-    context: vscode.ExtensionContext, filePath: string, content: string
+    context: vscode.ExtensionContext, filePaths: string[], contents: string[]
 ) {
     const columnToShowIn = vscode.window.activeTextEditor
         ? vscode.window.activeTextEditor.viewColumn
@@ -32,13 +33,7 @@ export function createVisualizationPanel(
     if (currentPanel) {
         currentPanel.reveal(columnToShowIn);
         updateVisualizationPanel(currentPanel, context);
-        currentPanel?.webview.postMessage({
-            command: 'parseBenchmark',
-            data: {
-                paths: [filePath],
-                data: [content]
-            }
-        });
+        listenMessages(currentPanel, filePaths, contents);
         return;
     }
 
@@ -59,20 +54,7 @@ export function createVisualizationPanel(
         }
     );
 
-    // Handle messages from the webview
-    currentPanel.webview.onDidReceiveMessage(
-        message => {
-            switch (message.command) {
-                case 'updateVisualization':
-                    // Handle visualization update requests
-                    const { selectedBenchmarks, selectedMetric, chartType, chartColors } = message;
-                    console.log('Updating visualization with:', { selectedBenchmarks, selectedMetric, chartType, chartColors });
-                    return;
-            }
-        },
-        undefined,
-        context.subscriptions
-    );
+    listenMessages(currentPanel, filePaths, contents);
 
     // When the panel is closed, clean up resources
     currentPanel.onDidDispose(
@@ -83,8 +65,16 @@ export function createVisualizationPanel(
         context.subscriptions
     );
 
-    // Handle messages from the webview
-    currentPanel.webview.onDidReceiveMessage((event) => {
+    // Set the initial HTML content
+    updateVisualizationPanel(currentPanel, context);
+}
+
+function listenMessages(currentPanel: vscode.WebviewPanel, filePaths: string[], contents: string[]) {
+    if (disposableListener) {
+        disposableListener.dispose();
+        disposableListener = undefined;
+    }
+    disposableListener = currentPanel.webview.onDidReceiveMessage((event) => {
         switch (event.command) {
             case 'exportChart':
                 // Handle chart export requests
@@ -97,16 +87,13 @@ export function createVisualizationPanel(
                 currentPanel?.webview.postMessage({
                     command: 'parseBenchmark',
                     data: {
-                        paths: [filePath],
-                        data: [content]
+                        paths: filePaths.map(p => path.basename(p)),
+                        data: contents
                     }
                 });
                 break;
         }
     });
-
-    // Set the initial HTML content
-    updateVisualizationPanel(currentPanel, context);
 }
 
 /**

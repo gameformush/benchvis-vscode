@@ -64,8 +64,8 @@ interface BenchmarkMeasurement {
         delta: string;
         nSamples: number;
         pValue: number;
+        warnings?: string[];
     };
-    warnings?: string[];
 }
 
 // Summary item
@@ -146,7 +146,6 @@ const vscode = acquireVsCodeApi();
  * WASM Visualization Controller
  */
 export class WasmVisualizationController {
-    private selectedPalette = 'default';
     private customColors = [...COLOR_PALETTES.default];
     private benchmarkChart: any = null;
     private benchmarkReport: BenchmarkReport = []; // Store benchmark report directly
@@ -190,9 +189,6 @@ export class WasmVisualizationController {
         try {
             if (event.data?.command === 'parseBenchmark') {
                 this.parseBenchmarkData(event.data.data);
-            } else if (event.data?.command === 'refreshData') {
-                // Re-run the analysis with updated configuration
-                this.refreshBenchmarkData();
             }
         } catch (error) {
             this.showError(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -201,6 +197,7 @@ export class WasmVisualizationController {
 
     /**
      * Refresh the benchmark data with updated config options
+     * used in wasm-ts.hbs
      */
     private refreshBenchmarkData(): void {
         if (!this.files || this.files.length === 0) {
@@ -371,26 +368,21 @@ export class WasmVisualizationController {
     /**
      * Extract metrics from BenchmarkReport
      */
-    private extractMetricsFromReport(report: BenchmarkReport): Array<{ name: string, displayName: string }> {
-        const metrics: Array<{ name: string, displayName: string }> = [];
-        let metricsFound = false;
+    private extractMetricsFromReport(report: BenchmarkReport): Map<string, string> {
+        const metrics = new Map<string, string>();
 
         // Add metrics from tables
-        report.forEach(table => {
-            if (table?.unit && !metrics.some(m => m.name === table.unit)) {
-                metrics.push({
-                    name: table.unit,
-                    displayName: this.formatMetricName(table.unit)
-                });
-                metricsFound = true;
+        for (const table of report) {
+            if (table?.unit && !metrics.has(table.unit)) {
+                metrics.set(table.unit, this.formatMetricName(table.unit));
             }
-        });
+        }
 
-        if (!metricsFound) {
+        if (metrics.size === 0) {
             this.showError("No valid metrics found in the report");
         }
 
-        return metrics;
+        return metrics
     }
 
     /**
@@ -439,6 +431,7 @@ export class WasmVisualizationController {
      * Update chart using BenchmarkReport data
      */
     private updateChartFromReport(report: BenchmarkReport): void {
+
         try {
             if (!window.Chart) {
                 this.showError("Chart.js not available");
@@ -451,10 +444,11 @@ export class WasmVisualizationController {
 
             const selectedMetric = metricSelect.value;
             const chartType = chartTypeSelect.value;
+
             if (!selectedMetric) return;
 
             // Get selected benchmarks
-            const selectedBenchmarks = this.getSelectedBenchmarksFromReport(report);
+            const selectedBenchmarks = this.getSelectedBenchmarksFromReport();
             if (selectedBenchmarks.length === 0) return;
 
             // Prepare chart data
@@ -583,17 +577,33 @@ export class WasmVisualizationController {
         benchmarkHeader.textContent = 'Benchmark';
         headerRow.appendChild(benchmarkHeader);
 
+        const tr = document.createElement('tr');
+        const rowCell = document.createElement('td');
+        rowCell.textContent = table.summaryLabel;
+        tr.appendChild(rowCell);
+
         // Add column headers
         table.cols.forEach(col => {
             const th = document.createElement('th');
             th.textContent = col;
             headerRow.appendChild(th);
+            const summaryCell = document.createElement('td');
+
+            summaryCell.textContent = this.formatMetricValue(table.summary[col].value, selectedMetric);
+            if (table.summary[col].pctChange) {
+                const deltaSpan = document.createElement('span');
+                deltaSpan.className = 'delta-value';
+                deltaSpan.textContent = ` (${table.summary[col].pctChange})`;
+                summaryCell.appendChild(deltaSpan);
+            }
+            tr.appendChild(summaryCell)
         });
 
         tableHeader.appendChild(headerRow);
+        tableBody.appendChild(tr)
 
         // Get selected benchmarks
-        const selectedBenchmarks = this.getSelectedBenchmarksFromReport(report);
+        const selectedBenchmarks = this.getSelectedBenchmarksFromReport();
 
         // Create table rows
         table.rows.forEach(row => {
@@ -619,14 +629,16 @@ export class WasmVisualizationController {
                     if (cell.comparison) {
                         const deltaSpan = document.createElement('span');
                         deltaSpan.className = 'delta-value';
-                        deltaSpan.textContent = ` (${cell.comparison.delta})`;
+                        deltaSpan.textContent = ` ${cell.comparison.delta} (p=${cell.comparison?.pValue} n=${cell.comparison.nSamples})`;
                         td.appendChild(deltaSpan);
-                    }
 
-                    // Add warning if any
-                    if (cell.warnings && cell.warnings.length > 0) {
-                        td.classList.add('has-warning');
-                        td.title = cell.warnings.join('\n');
+                        // Add warning if any
+                        if (cell.comparison.warnings && cell.comparison.warnings.length > 0) {
+                            td.classList.add('has-warning');
+                            const warningSpan = document.createElement('span');
+                            warningSpan.textContent = ` ${cell.comparison.warnings.join('\n')} ⚠️`
+                            td.append(warningSpan)
+                        }
                     }
                 }
 
@@ -637,30 +649,23 @@ export class WasmVisualizationController {
         });
     }
 
-    private populateMetricsDropdown(metrics: Array<{ name: string, displayName: string }>): void {
+    private populateMetricsDropdown(metrics: Map<string, string>): void {
         // Update main metric select
-        const select = document.getElementById('metric-select') as HTMLSelectElement;
-        if (select) {
-            select.innerHTML = '';
-            metrics.forEach(metric => {
-                const option = document.createElement('option');
-                option.value = metric.name;
-                option.textContent = metric.displayName;
-                select.appendChild(option);
-            });
-        }
+        const updateSelectOptions = (selectId: string) => {
+            const select = document.getElementById(selectId) as HTMLSelectElement;
+            if (select) {
+                select.innerHTML = '';
+                metrics.forEach((displayName, name) => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = displayName;
+                    select.appendChild(option);
+                });
+            }
+        };
 
-        // Also update table metric select
-        const tableSelect = document.getElementById('table-metric-select') as HTMLSelectElement;
-        if (tableSelect) {
-            tableSelect.innerHTML = '';
-            metrics.forEach(metric => {
-                const option = document.createElement('option');
-                option.value = metric.name;
-                option.textContent = metric.displayName;
-                tableSelect.appendChild(option);
-            });
-        }
+        updateSelectOptions('metric-select');
+        updateSelectOptions('table-metric-select');
     }
 
     private setupUIEventListeners(): void {

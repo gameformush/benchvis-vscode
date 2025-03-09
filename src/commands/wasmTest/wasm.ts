@@ -13,12 +13,31 @@ export const wasmCmd = (context: vscode.ExtensionContext) => async () => {
 
     const document = activeEditor.document;
     const filePath = document.uri.fsPath;
-    console.log(`Active file path: ${filePath}`);
 
     const content = await fs.readFile(filePath, 'utf8');
     // Create visualization panel
-    createVisualizationPanel(context, filePath, content);
+    createVisualizationPanel(context, [filePath], [content]);
 
+  } catch (error) {
+    console.error(error);
+    vscode.window.showErrorMessage(`Failed to parse benchmark file: ${error}`);
+  }
+}
+
+export const wasmMultiCmd = (context: vscode.ExtensionContext) => async (contextSelection: vscode.Uri, allSelections: vscode.Uri[]) => {
+  try {
+    // The code you place here will be executed every time your command is executed
+    vscode.window.showInformationMessage('Starting wasm visualization...');
+
+    const paths = []
+    const contents = []
+    for (const selection of allSelections) {
+      paths.push(selection.fsPath)
+      contents.push((await fs.readFile(selection.fsPath, 'utf8')))
+    }
+
+    // Create visualization panel
+    createVisualizationPanel(context, paths, contents);
   } catch (error) {
     console.error(error);
     vscode.window.showErrorMessage(`Failed to parse benchmark file: ${error}`);
