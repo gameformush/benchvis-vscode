@@ -58,7 +58,8 @@
 		}
 
 		select,
-		input[type="color"] {
+		input[type="color"],
+		input[type="range"] {
 			width: 100%;
 			padding: 8px;
 			margin-bottom: 10px;
@@ -159,7 +160,7 @@
 			border-radius: 5px;
 			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 		}
-
+		
 		.error-message {
 			color: var(--vscode-errorForeground);
 			background-color: var(--vscode-inputValidation-errorBackground);
@@ -168,68 +169,339 @@
 			margin: 10px 0;
 			border-radius: 5px;
 		}
+
+		/* Tab styles */
+		.tabs {
+			display: flex;
+			margin-bottom: 0;
+			border-bottom: 1px solid var(--vscode-input-border);
+		}
+		
+		.tab {
+			padding: 8px 16px;
+			cursor: pointer;
+			border-top-left-radius: 3px;
+			border-top-right-radius: 3px;
+			margin-right: 2px;
+			background-color: var(--vscode-editor-inactiveSelectionBackground);
+		}
+		
+		.tab.active {
+			background-color: var(--vscode-button-background);
+			color: var(--vscode-button-foreground);
+		}
+		
+		.tab-content {
+			display: none;
+			padding: 15px;
+			background-color: var(--vscode-editor-inactiveSelectionBackground);
+			border-bottom-left-radius: 5px;
+			border-bottom-right-radius: 5px;
+		}
+		
+		.tab-content.active {
+			display: block;
+		}
+
+		/* Settings styles */
+		.grid-display-toggle,
+		.animation-toggle {
+			display: flex;
+			align-items: center;
+			margin-bottom: 10px;
+		}
+		
+		.grid-display-toggle input,
+		.animation-toggle input {
+			margin-right: 8px;
+		}
+
+		.table-view {
+			margin-top: 20px;
+			width: 100%;
+			border-collapse: collapse;
+			overflow-x: auto;
+			background-color: var(--vscode-editor-inactiveSelectionBackground);
+			border-radius: 5px;
+		}
+		
+		.table-view table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		
+		.table-view th, .table-view td {
+			padding: 8px;
+			text-align: left;
+			border-bottom: 1px solid var(--vscode-input-border);
+		}
+		
+		.table-view th {
+			background-color: var(--vscode-button-background);
+			color: var(--vscode-button-foreground);
+		}
+		
+		.table-view tr:hover {
+			background-color: var(--vscode-list-hoverBackground);
+		}
+
+		.export-buttons {
+			display: flex;
+			gap: 5px;
+			margin-top: 10px;
+		}
 	</style>
 </head>
 
 <body>
 	<h1>Benchmark Visualization</h1>
-
+	
 	<div id="error-container"></div>
 
-	<div class="controls">
-		<div class="control-group">
-			<h3>Benchmarks</h3>
-			<div id="benchmark-list" class="benchmark-list">
-				<!-- Benchmarks will be populated here -->
-			</div>
-		</div>
-
-		<div class="control-group">
-			<h3>Metrics</h3>
-			<label for="metric-select">Metric:</label>
-			<select id="metric-select">
-				<!-- Metrics will be populated here -->
-			</select>
-
-			<label for="chart-type">Chart Type:</label>
-			<select id="chart-type">
-				<option value="bar">Bar Chart</option>
-				<option value="line">Line Chart</option>
-				<option value="radar">Radar Chart</option>
-				<option value="polarArea">Polar Area</option>
-				<option value="doughnut">Doughnut</option>
-			</select>
-		</div>
-
-		<div class="control-group">
-			<h3>Colors</h3>
-			<div class="color-palette">
-				<div class="palette selected" data-palette="default">
-					<div class="palette-color" style="background-color: #4285F4"></div>
-					<div class="palette-color" style="background-color: #EA4335"></div>
-					<div class="palette-color" style="background-color: #FBBC05"></div>
-					<div class="palette-color" style="background-color: #34A853"></div>
-				</div>
-				<div class="palette" data-palette="pastel">
-					<div class="palette-color" style="background-color: #ff9aa2"></div>
-					<div class="palette-color" style="background-color: #c7ceea"></div>
-					<div class="palette-color" style="background-color: #b5ead7"></div>
-					<div class="palette-color" style="background-color: #ffdac1"></div>
+	<div class="tabs">
+		<div class="tab active" data-tab="chart-tab">Chart View</div>
+		<div class="tab" data-tab="table-tab">Table View</div>
+		<div class="tab" data-tab="settings-tab">Appearance</div>
+	</div>
+	
+	<div id="chart-tab" class="tab-content active">
+		<div class="controls">
+			<div class="control-group">
+				<h3>Benchmarks</h3>
+				<div id="benchmark-list" class="benchmark-list">
+					<!-- Benchmarks will be populated here -->
 				</div>
 			</div>
-			<div id="custom-colors" class="custom-colors">
-				<!-- Color inputs will be populated here -->
+			
+			<div class="control-group">
+				<h3>Metrics</h3>
+				<label for="metric-select">Metric:</label>
+				<select id="metric-select">
+					<!-- Metrics will be populated here -->
+				</select>
+				
+				<label for="chart-type">Chart Type:</label>
+				<select id="chart-type">
+					<option value="bar">Bar Chart</option>
+					<option value="line">Line Chart</option>
+					<option value="radar">Radar Chart</option>
+					<option value="polarArea">Polar Area</option>
+					<option value="doughnut">Doughnut</option>
+				</select>
+			</div>
+			
+			<div class="control-group">
+				<h3>Colors</h3>
+				<div class="color-palette">
+					<div class="palette selected" data-palette="default">
+						<div class="palette-color" style="background-color: #4285F4"></div>
+						<div class="palette-color" style="background-color: #EA4335"></div>
+						<div class="palette-color" style="background-color: #FBBC05"></div>
+						<div class="palette-color" style="background-color: #34A853"></div>
+					</div>
+					<div class="palette" data-palette="pastel">
+						<div class="palette-color" style="background-color: #ff9aa2"></div>
+						<div class="palette-color" style="background-color: #c7ceea"></div>
+						<div class="palette-color" style="background-color: #b5ead7"></div>
+						<div class="palette-color" style="background-color: #ffdac1"></div>
+					</div>
+				</div>
+				<div id="custom-colors" class="custom-colors">
+					<!-- Color inputs will be populated here -->
+				</div>
+				
+				<div class="export-buttons">
+					<button id="export-png">Export PNG</button>
+					<button id="export-svg">Export SVG</button>
+				</div>
+			</div>
+		</div>
+		
+		<div class="chart-container">
+			<canvas id="benchmarkChart"></canvas>
+		</div>
+	</div>
+	
+	<div id="table-tab" class="tab-content">
+		<div class="controls">
+			<div class="control-group">
+				<h3>Metric</h3>
+				<select id="table-metric-select">
+					<!-- Metrics will be populated here -->
+				</select>
+			</div>
+		</div>
+		
+		<div class="table-view">
+			<table id="data-table">
+				<thead id="table-header">
+					<!-- Table header will be added dynamically -->
+				</thead>
+				<tbody id="table-body">
+					<!-- Table rows will be added dynamically -->
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+	<div id="settings-tab" class="tab-content">
+		<div class="controls">
+			<div class="control-group">
+				<h3>Chart Settings</h3>
+				
+				<div class="grid-display-toggle">
+					<input type="checkbox" id="show-grid" checked>
+					<label for="show-grid">Show Grid</label>
+				</div>
+				
+				<div class="grid-display-toggle">
+					<input type="checkbox" id="show-x-grid" checked>
+					<label for="show-x-grid">X-axis Grid Lines</label>
+				</div>
+				
+				<div class="grid-display-toggle">
+					<input type="checkbox" id="show-y-grid" checked>
+					<label for="show-y-grid">Y-axis Grid Lines</label>
+				</div>
+				
+				<label for="point-style">Point Style</label>
+				<select id="point-style">
+					<option value="circle">Circle</option>
+					<option value="cross">Cross</option>
+					<option value="crossRot">Rotated Cross</option>
+					<option value="dash">Dash</option>
+					<option value="line">Line</option>
+					<option value="rect">Rectangle</option>
+					<option value="rectRounded">Rounded Rectangle</option>
+					<option value="rectRot">Rotated Rectangle</option>
+					<option value="star">Star</option>
+					<option value="triangle">Triangle</option>
+				</select>
+				
+				<div class="animation-toggle">
+					<input type="checkbox" id="enable-animations" checked>
+					<label for="enable-animations">Enable Animations</label>
+				</div>
+				
+				<label for="legend-position">Legend Position</label>
+				<select id="legend-position">
+					<option value="top">Top</option>
+					<option value="bottom">Bottom</option>
+					<option value="left">Left</option>
+					<option value="right">Right</option>
+				</select>
+			</div>
+			
+			<div class="control-group">
+				<h3>Font Settings</h3>
+				
+				<label for="title-size">Title Font Size</label>
+				<input type="range" id="title-size" min="8" max="24" value="14">
+				<span id="title-size-value">14px</span>
+				
+				<label for="label-size">Axis Label Font Size</label>
+				<input type="range" id="label-size" min="8" max="20" value="12">
+				<span id="label-size-value">12px</span>
+				
+				<label for="tick-size">Tick Font Size</label>
+				<input type="range" id="tick-size" min="6" max="16" value="10">
+				<span id="tick-size-value">10px</span>
 			</div>
 		</div>
 	</div>
 
-	<div class="chart-container">
-		<canvas id="benchmarkChart"></canvas>
-	</div>
 	<script nonce="{{nonce}}">
 		// Initialize the WASM visualization with the URL to the WASM binary
 		const wasmUrl = '{{{WASM_URL}}}';
 		const visualization = WasmVis.initializeWasmVisualization(wasmUrl);
+
+		// Tab switching functionality
+		document.querySelectorAll('.tab').forEach(tab => {
+			tab.addEventListener('click', (event) => {
+				const tabId = event.target.dataset.tab;
+				switchTab(tabId);
+			});
+		});
+
+		function switchTab(tabId) {
+			// Hide all tab contents
+			document.querySelectorAll('.tab-content').forEach(content => {
+				content.classList.remove('active');
+			});
+			
+			// Deactivate all tabs
+			document.querySelectorAll('.tab').forEach(tab => {
+				tab.classList.remove('active');
+			});
+			
+			// Activate the selected tab and content
+			document.getElementById(tabId).classList.add('active');
+			document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+			
+			// Notify controller about tab change
+			visualization.handleTabChange(tabId);
+		}
+
+		// Export functionality
+		document.getElementById('export-png')?.addEventListener('click', () => {
+			visualization.exportChart('png');
+		});
+		
+		document.getElementById('export-svg')?.addEventListener('click', () => {
+			visualization.exportChart('svg');
+		});
+
+		// Settings event listeners
+		document.getElementById('show-grid')?.addEventListener('change', (e) => {
+			visualization.updateChartSetting('showGrid', e.target.checked);
+		});
+		
+		document.getElementById('show-x-grid')?.addEventListener('change', (e) => {
+			visualization.updateChartSetting('showXGrid', e.target.checked);
+		});
+		
+		document.getElementById('show-y-grid')?.addEventListener('change', (e) => {
+			visualization.updateChartSetting('showYGrid', e.target.checked);
+		});
+		
+		document.getElementById('point-style')?.addEventListener('change', (e) => {
+			visualization.updateChartSetting('pointStyle', e.target.value);
+		});
+		
+		document.getElementById('enable-animations')?.addEventListener('change', (e) => {
+			visualization.updateChartSetting('enableAnimations', e.target.checked);
+		});
+		
+		document.getElementById('legend-position')?.addEventListener('change', (e) => {
+			visualization.updateChartSetting('legendPosition', e.target.value);
+		});
+		
+		document.getElementById('title-size')?.addEventListener('input', (e) => {
+			const value = parseInt(e.target.value);
+			document.getElementById('title-size-value').textContent = `${value}px`;
+			visualization.updateChartSetting('titleSize', value);
+		});
+		
+		document.getElementById('label-size')?.addEventListener('input', (e) => {
+			const value = parseInt(e.target.value);
+			document.getElementById('label-size-value').textContent = `${value}px`;
+			visualization.updateChartSetting('labelSize', value);
+		});
+		
+		document.getElementById('tick-size')?.addEventListener('input', (e) => {
+			const value = parseInt(e.target.value);
+			document.getElementById('tick-size-value').textContent = `${value}px`;
+			visualization.updateChartSetting('tickSize', value);
+		});
+
+		// Connect table metric select with main metric select to keep them in sync
+		document.getElementById('table-metric-select')?.addEventListener('change', (e) => {
+			const metricSelect = document.getElementById('metric-select');
+			if (metricSelect) {
+				metricSelect.value = e.target.value;
+				metricSelect.dispatchEvent(new Event('change'));
+			}
+		});
 	</script>
 </body>
 

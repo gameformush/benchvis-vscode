@@ -144,11 +144,26 @@ export const callBuildBenchstat = (args: BenchStatRequest): [BenchmarkReport | n
  * WASM Visualization Controller
  */
 export class WasmVisualizationController {
+    private selectedPalette = 'default';
     private customColors = [...COLOR_PALETTES.default];
     private benchmarkChart: any = null;
     private benchmarkResults: BenchmarkResult[] = [];
     private vscode = acquireVsCodeApi();
     private files: File[] = [];
+    private currentTab = 'chart-tab';
+
+    // Chart settings
+    private chartSettings = {
+        showGrid: true,
+        showXGrid: true,
+        showYGrid: true,
+        pointStyle: 'circle',
+        enableAnimations: true,
+        legendPosition: 'top',
+        titleSize: 14,
+        labelSize: 12,
+        tickSize: 10
+    };
 
     constructor(private wasmUrl: string) {
         this.initializeApplication();
@@ -211,7 +226,7 @@ export class WasmVisualizationController {
         }
 
         try {
-            const wasmResponse = parseBenchmarkFiles(JSON.stringify(data)) as WasmResponse;
+            const wasmResponse = window.parseBenchmarkFiles(JSON.stringify(data)) as WasmResponse;
             if (wasmResponse.error) {
                 this.showError(`WASM error: ${wasmResponse.error}`);
                 return;
@@ -297,16 +312,29 @@ export class WasmVisualizationController {
     }
 
     private populateMetricsDropdown(metrics: Array<{ name: string, displayName: string }>): void {
+        // Update main metric select
         const select = document.getElementById('metric-select') as HTMLSelectElement;
-        if (!select) return;
+        if (select) {
+            select.innerHTML = '';
+            metrics.forEach(metric => {
+                const option = document.createElement('option');
+                option.value = metric.name;
+                option.textContent = metric.displayName;
+                select.appendChild(option);
+            });
+        }
 
-        select.innerHTML = '';
-        metrics.forEach(metric => {
-            const option = document.createElement('option');
-            option.value = metric.name;
-            option.textContent = metric.displayName;
-            select.appendChild(option);
-        });
+        // Also update table metric select
+        const tableSelect = document.getElementById('table-metric-select') as HTMLSelectElement;
+        if (tableSelect) {
+            tableSelect.innerHTML = '';
+            metrics.forEach(metric => {
+                const option = document.createElement('option');
+                option.value = metric.name;
+                option.textContent = metric.displayName;
+                tableSelect.appendChild(option);
+            });
+        }
     }
 
     private createBenchmarkList(results: BenchmarkResult[]): void {
@@ -354,6 +382,9 @@ export class WasmVisualizationController {
                 this.updateChart(this.benchmarkResults);
             });
         });
+
+        // Initialize settings inputs with current values
+        this.initializeSettingsInputs();
 
         // Metric selector listener
         const metricSelect = document.getElementById('metric-select');
@@ -537,6 +568,7 @@ export class WasmVisualizationController {
                 labels.push(`Item ${labels.length + 1}`);
             }
         }
+        console.log("DATAset", datasets, labels)
 
         return { datasets, labels };
     }
@@ -592,24 +624,62 @@ export class WasmVisualizationController {
         datasets: ChartDataset[],
         metric: string
     ): any {
+        // Apply chart settings
+        const { showGrid, showXGrid, showYGrid, pointStyle, enableAnimations,
+            legendPosition, titleSize, labelSize, tickSize } = this.chartSettings;
+
+        // Add point style to datasets if applicable
+        if (pointStyle && (chartType === 'line' || chartType === 'scatter' || chartType === 'radar')) {
+            datasets.forEach(dataset => {
+                (dataset as any).pointStyle = pointStyle;
+            });
+        }
+
         return {
             type: chartType,
             data: { labels, datasets },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: enableAnimations ? 1000 : 0
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: this.formatMetricName(metric)
+                            text: this.formatMetricName(metric),
+                            font: {
+                                size: labelSize
+                            }
+                        },
+                        grid: {
+                            display: showGrid && showYGrid,
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            font: {
+                                size: tickSize
+                            }
                         }
                     },
                     x: {
                         title: {
                             display: true,
-                            text: 'Benchmark'
+                            text: 'Benchmark',
+                            font: {
+                                size: labelSize
+                            }
+                        },
+                        grid: {
+                            display: showGrid && showXGrid,
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            font: {
+                                size: tickSize
+                            }
                         }
                     }
                 },
@@ -626,10 +696,20 @@ export class WasmVisualizationController {
                             }
                         }
                     },
-                    legend: { position: 'top' },
+                    legend: {
+                        position: legendPosition,
+                        labels: {
+                            font: {
+                                size: labelSize
+                            }
+                        }
+                    },
                     title: {
                         display: true,
-                        text: `Benchmark Results - ${this.formatMetricName(metric)}`
+                        text: `Benchmark Results - ${this.formatMetricName(metric)}`,
+                        font: {
+                            size: titleSize
+                        }
                     }
                 }
             }
@@ -754,11 +834,181 @@ export class WasmVisualizationController {
         return results.filter(result => result?.name && selectedNames.includes(result.name));
     }
 
+    /**
+     * Initialize settings form elements with current values
+     */
+    private initializeSettingsInputs(): void {
+        // Initialize checkboxes
+        const showGridEl = document.getElementById('show-grid') as HTMLInputElement;
+        if (showGridEl) showGridEl.checked = this.chartSettings.showGrid;
+
+        const showXGridEl = document.getElementById('show-x-grid') as HTMLInputElement;
+        if (showXGridEl) showXGridEl.checked = this.chartSettings.showXGrid;
+
+        const showYGridEl = document.getElementById('show-y-grid') as HTMLInputElement;
+        if (showYGridEl) showYGridEl.checked = this.chartSettings.showYGrid;
+
+        const enableAnimationsEl = document.getElementById('enable-animations') as HTMLInputElement;
+        if (enableAnimationsEl) enableAnimationsEl.checked = this.chartSettings.enableAnimations;
+
+        // Initialize selects
+        const pointStyleEl = document.getElementById('point-style') as HTMLSelectElement;
+        if (pointStyleEl) pointStyleEl.value = this.chartSettings.pointStyle;
+
+        const legendPositionEl = document.getElementById('legend-position') as HTMLSelectElement;
+        if (legendPositionEl) legendPositionEl.value = this.chartSettings.legendPosition;
+
+        // Initialize ranges and their display values
+        const titleSizeEl = document.getElementById('title-size') as HTMLInputElement;
+        const titleSizeValueEl = document.getElementById('title-size-value');
+        if (titleSizeEl) {
+            titleSizeEl.value = this.chartSettings.titleSize.toString();
+            if (titleSizeValueEl) titleSizeValueEl.textContent = `${this.chartSettings.titleSize}px`;
+        }
+
+        const labelSizeEl = document.getElementById('label-size') as HTMLInputElement;
+        const labelSizeValueEl = document.getElementById('label-size-value');
+        if (labelSizeEl) {
+            labelSizeEl.value = this.chartSettings.labelSize.toString();
+            if (labelSizeValueEl) labelSizeValueEl.textContent = `${this.chartSettings.labelSize}px`;
+        }
+
+        const tickSizeEl = document.getElementById('tick-size') as HTMLInputElement;
+        const tickSizeValueEl = document.getElementById('tick-size-value');
+        if (tickSizeEl) {
+            tickSizeEl.value = this.chartSettings.tickSize.toString();
+            if (tickSizeValueEl) tickSizeValueEl.textContent = `${this.chartSettings.tickSize}px`;
+        }
+    }
+
     private getMetricValue(result: BenchmarkResult, metricName: string): number | null {
         if (!result?.values?.length) return null;
 
         const metric = result.values.find(v => v?.unit === metricName);
         return metric ? metric.value : null;
+    }
+
+    /**
+     * Handle tab change event from the UI
+     * @param tabId The ID of the tab that was selected
+     */
+    public handleTabChange(tabId: string): void {
+        this.currentTab = tabId;
+
+        // Perform actions based on which tab is selected
+        if (tabId === 'table-tab') {
+            this.updateTable();
+        } else if (tabId === 'chart-tab') {
+            if (this.benchmarkChart) {
+                this.updateChart(this.benchmarkResults);
+            }
+        }
+    }
+
+    /**
+     * Update a chart setting and refresh the chart
+     * @param setting The setting to update
+     * @param value The new value for the setting
+     */
+    public updateChartSetting(setting: string, value: any): void {
+        if (setting in this.chartSettings) {
+            (this.chartSettings as any)[setting] = value;
+
+            // Only update chart if we're on the chart tab
+            if (this.currentTab === 'chart-tab' && this.benchmarkChart) {
+                this.updateChart(this.benchmarkResults);
+            }
+        }
+    }
+
+    /**
+     * Export the chart as an image
+     * @param format The format to export ('png' or 'svg')
+     */
+    public exportChart(format: string): void {
+        if (!this.benchmarkChart) {
+            this.showError("No chart to export");
+            return;
+        }
+
+        try {
+            const dataUrl = this.benchmarkChart.toBase64Image();
+
+            // Send the data URL to the extension for saving
+            this.vscode.postMessage({
+                command: 'exportChart',
+                format: format,
+                dataUrl: dataUrl
+            });
+        } catch (error) {
+            this.showError(`Failed to export chart: ${error instanceof Error ? error.message : String(error)}`);
+        }
+    }
+
+    /**
+     * Update the table view with the current benchmark data
+     */
+    private updateTable(): void {
+        const metricSelect = document.getElementById('table-metric-select') as HTMLSelectElement;
+        if (!metricSelect) return;
+
+        const selectedMetric = metricSelect.value;
+        if (!selectedMetric || !this.benchmarkResults.length) return;
+
+        const tableHeader = document.getElementById('table-header');
+        const tableBody = document.getElementById('table-body');
+        if (!tableHeader || !tableBody) return;
+
+        // Clear existing table
+        tableHeader.innerHTML = '';
+        tableBody.innerHTML = '';
+
+        // Create header row
+        const headerRow = document.createElement('tr');
+        const benchmarkHeader = document.createElement('th');
+        benchmarkHeader.textContent = 'Benchmark';
+        headerRow.appendChild(benchmarkHeader);
+
+        const valueHeader = document.createElement('th');
+        valueHeader.textContent = this.formatMetricName(selectedMetric);
+        headerRow.appendChild(valueHeader);
+
+        tableHeader.appendChild(headerRow);
+
+        // Group results by name for the table
+        const benchmarksByName = new Map<string, BenchmarkResult[]>();
+        this.benchmarkResults.forEach(result => {
+            if (!result?.name) return;
+
+            if (!benchmarksByName.has(result.name)) {
+                benchmarksByName.set(result.name, []);
+            }
+            benchmarksByName.get(result.name)?.push(result);
+        });
+
+        // Create table rows
+        benchmarksByName.forEach((benchmarks, name) => {
+            // Average the values for this benchmark
+            const values = benchmarks
+                .map(b => this.getMetricValue(b, selectedMetric))
+                .filter((v): v is number => v !== null);
+
+            if (values.length) {
+                const avg = values.reduce((a, b) => a + b, 0) / values.length;
+
+                const row = document.createElement('tr');
+
+                const nameCell = document.createElement('td');
+                nameCell.textContent = name;
+                row.appendChild(nameCell);
+
+                const valueCell = document.createElement('td');
+                valueCell.textContent = this.formatMetricValue(avg, selectedMetric);
+                row.appendChild(valueCell);
+
+                tableBody.appendChild(row);
+            }
+        });
     }
 }
 

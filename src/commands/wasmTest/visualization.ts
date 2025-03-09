@@ -31,7 +31,14 @@ export function createVisualizationPanel(
     // If we already have a panel, show it
     if (currentPanel) {
         currentPanel.reveal(columnToShowIn);
-        updateVisualizationPanel(currentPanel, filePath, content, context);
+        updateVisualizationPanel(currentPanel, context);
+        currentPanel?.webview.postMessage({
+            command: 'parseBenchmark',
+            data: {
+                paths: [filePath],
+                data: [content]
+            }
+        });
         return;
     }
 
@@ -76,8 +83,63 @@ export function createVisualizationPanel(
         context.subscriptions
     );
 
+    // Handle messages from the webview
+    currentPanel.webview.onDidReceiveMessage((event) => {
+        switch (event.command) {
+            case 'exportChart':
+                // Handle chart export requests
+                const { format, dataUrl } = event;
+                exportChart(dataUrl, format);
+                return;
+
+            case "loaded":
+                // When the WASM module is loaded, send the benchmark data for parsing
+                currentPanel?.webview.postMessage({
+                    command: 'parseBenchmark',
+                    data: {
+                        paths: [filePath],
+                        data: [content]
+                    }
+                });
+                break;
+        }
+    });
+
     // Set the initial HTML content
-    updateVisualizationPanel(currentPanel, filePath, content, context);
+    updateVisualizationPanel(currentPanel, context);
+}
+
+/**
+ * Exports the chart as an image file
+ * @param dataUrl The data URL of the chart image
+ * @param format The format to export (png, jpg, svg)
+ */
+async function exportChart(dataUrl: string, format: string): Promise<void> {
+    try {
+        // Remove header from the data URL to get the base64 string
+        const base64Data = dataUrl.split(',')[1];
+
+        // Show file save dialog
+        const filters: { [name: string]: string[] } = {};
+        filters[format.toUpperCase()] = [format];
+
+        const uri = await vscode.window.showSaveDialog({
+            filters,
+            saveLabel: `Export as ${format.toUpperCase()}`,
+            defaultUri: vscode.Uri.file(`benchstat-chart.${format}`)
+        });
+
+        if (uri) {
+            // Convert base64 to buffer
+            const buffer = Buffer.from(base64Data, 'base64');
+
+            // Write the file
+            await fs.promises.writeFile(uri.fsPath, buffer);
+            vscode.window.showInformationMessage(`Chart exported as ${uri.fsPath}`);
+        }
+    } catch (error) {
+        vscode.window.showErrorMessage(`Failed to export chart: ${error}`);
+    }
 }
 
 /**
@@ -89,7 +151,6 @@ export function createVisualizationPanel(
  */
 function updateVisualizationPanel(
     panel: vscode.WebviewPanel,
-    filePath: string, data: string,
     context: vscode.ExtensionContext
 ) {
     try {
@@ -134,22 +195,6 @@ function updateVisualizationPanel(
 
         // Set the webview HTML content
         panel.webview.html = html;
-
-        // Handle messages from the webview
-        panel.webview.onDidReceiveMessage((event) => {
-            switch (event.command) {
-                case "loaded":
-                    // When the WASM module is loaded, send the benchmark data for parsing
-                    panel.webview.postMessage({
-                        command: 'parseBenchmark', 
-                        data: {
-                            paths: [filePath],
-                            data: [data]
-                        }
-                    });
-                    break;
-            }
-        });
     } catch (error) {
         console.error('Error updating visualization panel:', error);
         vscode.window.showErrorMessage(`Failed to create visualization: ${error instanceof Error ? error.message : String(error)}`);
