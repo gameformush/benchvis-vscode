@@ -4,228 +4,228 @@ pkg: golang
 cpu: Apple M2 Max
 BenchmarkHashes
 BenchmarkHashes/Murmur3-8
-BenchmarkHashes/Murmur3-8-12         	164512034	         7.300 ns/op	1095.94 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3/size=8-12         	164512034	         7.300 ns/op	1095.94 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Murmur3Twmb-8
-BenchmarkHashes/Murmur3Twmb-8-12     	256763419	         4.738 ns/op	1688.64 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3Twmb/size=8-12     	256763419	         4.738 ns/op	1688.64 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/CityHash-8
-BenchmarkHashes/CityHash-8-12        	268343515	         4.492 ns/op	1780.82 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=CityHash/size=8-12        	268343515	         4.492 ns/op	1780.82 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Farmhash-8
-BenchmarkHashes/Farmhash-8-12        	383526830	         3.106 ns/op	2575.68 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Farmhash/size=8-12        	383526830	         3.106 ns/op	2575.68 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Highwayhash-8
-BenchmarkHashes/Highwayhash-8-12     	35377315	        34.01 ns/op	 235.21 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Highwayhash/size=8-12     	35377315	        34.01 ns/op	 235.21 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64-8
-BenchmarkHashes/XXHash64-8-12        	354032211	         3.421 ns/op	2338.35 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64/size=8-12        	354032211	         3.421 ns/op	2338.35 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64Asm-8
-BenchmarkHashes/XXHash64Asm-8-12     	351642082	         3.377 ns/op	2368.74 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64Asm/size=8-12     	351642082	         3.377 ns/op	2368.74 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha1-8
-BenchmarkHashes/Sha1-8-12            	27851220	        43.18 ns/op	 185.28 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha1/size=8-12            	27851220	        43.18 ns/op	 185.28 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Blake2b-8
-BenchmarkHashes/Blake2b-8-12         	 7093494	       170.0 ns/op	  47.05 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Blake2b/size=8-12         	 7093494	       170.0 ns/op	  47.05 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256-8
-BenchmarkHashes/Sha256-8-12          	28587537	        41.67 ns/op	 191.96 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256/size=8-12          	28587537	        41.67 ns/op	 191.96 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256Simd-8
-BenchmarkHashes/Sha256Simd-8-12      	31412378	        37.17 ns/op	 215.22 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256Simd/size=8-12      	31412378	        37.17 ns/op	 215.22 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha512-8
-BenchmarkHashes/Sha512-8-12          	11954259	        99.34 ns/op	  80.53 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha512/size=8-12          	11954259	        99.34 ns/op	  80.53 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/ChibiHash64-8
-BenchmarkHashes/ChibiHash64-8-12     	211282964	         5.669 ns/op	1411.27 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=ChibiHash64/size=8-12     	211282964	         5.669 ns/op	1411.27 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/MD5-8
-BenchmarkHashes/MD5-8-12             	13015912	        93.09 ns/op	  85.94 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=MD5/size=8-12             	13015912	        93.09 ns/op	  85.94 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Murmur3-16
-BenchmarkHashes/Murmur3-16-12        	179248255	         6.730 ns/op	2377.47 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3/size=16-12        	179248255	         6.730 ns/op	2377.47 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Murmur3Twmb-16
-BenchmarkHashes/Murmur3Twmb-16-12    	265221844	         4.516 ns/op	3543.30 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3Twmb/size=16-12    	265221844	         4.516 ns/op	3543.30 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/CityHash-16
-BenchmarkHashes/CityHash-16-12       	269285568	         4.478 ns/op	3573.22 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=CityHash/size=16-12       	269285568	         4.478 ns/op	3573.22 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Farmhash-16
-BenchmarkHashes/Farmhash-16-12       	378252181	         3.111 ns/op	5142.33 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Farmhash/size=16-12       	378252181	         3.111 ns/op	5142.33 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Highwayhash-16
-BenchmarkHashes/Highwayhash-16-12    	34978368	        34.49 ns/op	 463.93 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Highwayhash/size=16-12    	34978368	        34.49 ns/op	 463.93 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64-16
-BenchmarkHashes/XXHash64-16-12       	259508133	         4.608 ns/op	3472.12 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64/size=16-12       	259508133	         4.608 ns/op	3472.12 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64Asm-16
-BenchmarkHashes/XXHash64Asm-16-12    	259933028	         4.613 ns/op	3468.46 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64Asm/size=16-12    	259933028	         4.613 ns/op	3468.46 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha1-16
-BenchmarkHashes/Sha1-16-12           	27887196	        42.49 ns/op	 376.52 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha1/size=16-12           	27887196	        42.49 ns/op	 376.52 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Blake2b-16
-BenchmarkHashes/Blake2b-16-12        	 6999289	       168.7 ns/op	  94.83 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Blake2b/size=16-12        	 6999289	       168.7 ns/op	  94.83 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256-16
-BenchmarkHashes/Sha256-16-12         	28273490	        42.58 ns/op	 375.80 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256/size=16-12         	28273490	        42.58 ns/op	 375.80 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256Simd-16
-BenchmarkHashes/Sha256Simd-16-12     	31850091	        37.86 ns/op	 422.61 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256Simd/size=16-12     	31850091	        37.86 ns/op	 422.61 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha512-16
-BenchmarkHashes/Sha512-16-12         	11853924	       102.8 ns/op	 155.68 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha512/size=16-12         	11853924	       102.8 ns/op	 155.68 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/ChibiHash64-16
-BenchmarkHashes/ChibiHash64-16-12    	166135819	         7.315 ns/op	2187.24 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=ChibiHash64/size=16-12    	166135819	         7.315 ns/op	2187.24 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/MD5-16
-BenchmarkHashes/MD5-16-12            	13095492	        91.02 ns/op	 175.79 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=MD5/size=16-12            	13095492	        91.02 ns/op	 175.79 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Murmur3-32
-BenchmarkHashes/Murmur3-32-12        	137287224	         8.745 ns/op	3659.28 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3/size=32-12        	137287224	         8.745 ns/op	3659.28 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Murmur3Twmb-32
-BenchmarkHashes/Murmur3Twmb-32-12    	189151268	         6.448 ns/op	4962.89 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3Twmb/size=32-12    	189151268	         6.448 ns/op	4962.89 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/CityHash-32
-BenchmarkHashes/CityHash-32-12       	219865370	         5.431 ns/op	5891.86 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=CityHash/size=32-12       	219865370	         5.431 ns/op	5891.86 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Farmhash-32
-BenchmarkHashes/Farmhash-32-12       	298492209	         3.988 ns/op	8023.62 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Farmhash/size=32-12       	298492209	         3.988 ns/op	8023.62 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Highwayhash-32
-BenchmarkHashes/Highwayhash-32-12    	53621896	        22.93 ns/op	1395.58 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Highwayhash/size=32-12    	53621896	        22.93 ns/op	1395.58 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64-32
-BenchmarkHashes/XXHash64-32-12       	170827988	         6.995 ns/op	4574.71 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64/size=32-12       	170827988	         6.995 ns/op	4574.71 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64Asm-32
-BenchmarkHashes/XXHash64Asm-32-12    	184833724	         6.444 ns/op	4965.62 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64Asm/size=32-12    	184833724	         6.444 ns/op	4965.62 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha1-32
-BenchmarkHashes/Sha1-32-12           	28379947	        42.58 ns/op	 751.52 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha1/size=32-12           	28379947	        42.58 ns/op	 751.52 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Blake2b-32
-BenchmarkHashes/Blake2b-32-12        	 6986373	       170.5 ns/op	 187.67 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Blake2b/size=32-12        	 6986373	       170.5 ns/op	 187.67 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256-32
-BenchmarkHashes/Sha256-32-12         	27777456	        42.72 ns/op	 749.06 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256/size=32-12         	27777456	        42.72 ns/op	 749.06 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256Simd-32
-BenchmarkHashes/Sha256Simd-32-12     	31672993	        37.76 ns/op	 847.54 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256Simd/size=32-12     	31672993	        37.76 ns/op	 847.54 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha512-32
-BenchmarkHashes/Sha512-32-12         	11965304	        99.01 ns/op	 323.21 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha512/size=32-12         	11965304	        99.01 ns/op	 323.21 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/ChibiHash64-32
-BenchmarkHashes/ChibiHash64-32-12    	100000000	        10.42 ns/op	3070.94 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=ChibiHash64/size=32-12    	100000000	        10.42 ns/op	3070.94 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/MD5-32
-BenchmarkHashes/MD5-32-12            	13287840	        88.74 ns/op	 360.59 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=MD5/size=32-12            	13287840	        88.74 ns/op	 360.59 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Murmur3-64
-BenchmarkHashes/Murmur3-64-12        	91595774	        13.02 ns/op	4913.87 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3/size=64-12        	91595774	        13.02 ns/op	4913.87 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Murmur3Twmb-64
-BenchmarkHashes/Murmur3Twmb-64-12    	100000000	        10.15 ns/op	6307.06 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3Twmb/size=64-12    	100000000	        10.15 ns/op	6307.06 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/CityHash-64
-BenchmarkHashes/CityHash-64-12       	75427029	        15.83 ns/op	4043.21 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=CityHash/size=64-12       	75427029	        15.83 ns/op	4043.21 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Farmhash-64
-BenchmarkHashes/Farmhash-64-12       	210600964	         5.685 ns/op	11257.92 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Farmhash/size=64-12       	210600964	         5.685 ns/op	11257.92 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Highwayhash-64
-BenchmarkHashes/Highwayhash-64-12    	48010480	        24.85 ns/op	2575.27 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Highwayhash/size=64-12    	48010480	        24.85 ns/op	2575.27 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64-64
-BenchmarkHashes/XXHash64-64-12       	135269197	         8.793 ns/op	7278.92 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64/size=64-12       	135269197	         8.793 ns/op	7278.92 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64Asm-64
-BenchmarkHashes/XXHash64Asm-64-12    	144401608	         8.232 ns/op	7774.41 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64Asm/size=64-12    	144401608	         8.232 ns/op	7774.41 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha1-64
-BenchmarkHashes/Sha1-64-12           	21962066	        53.50 ns/op	1196.37 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha1/size=64-12           	21962066	        53.50 ns/op	1196.37 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Blake2b-64
-BenchmarkHashes/Blake2b-64-12        	 6824269	       172.4 ns/op	 371.19 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Blake2b/size=64-12        	 6824269	       172.4 ns/op	 371.19 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256-64
-BenchmarkHashes/Sha256-64-12         	20947190	        56.62 ns/op	1130.35 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256/size=64-12         	20947190	        56.62 ns/op	1130.35 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256Simd-64
-BenchmarkHashes/Sha256Simd-64-12     	18858571	        62.81 ns/op	1018.94 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256Simd/size=64-12     	18858571	        62.81 ns/op	1018.94 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha512-64
-BenchmarkHashes/Sha512-64-12         	11951332	        99.45 ns/op	 643.57 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha512/size=64-12         	11951332	        99.45 ns/op	 643.57 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/ChibiHash64-64
-BenchmarkHashes/ChibiHash64-64-12    	70124005	        17.11 ns/op	3740.72 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=ChibiHash64/size=64-12    	70124005	        17.11 ns/op	3740.72 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/MD5-64
-BenchmarkHashes/MD5-64-12            	 7268038	       164.5 ns/op	 389.10 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=MD5/size=64-12            	 7268038	       164.5 ns/op	 389.10 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Murmur3-128
-BenchmarkHashes/Murmur3-128-12       	56720269	        21.57 ns/op	5933.34 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3/size=128-12       	56720269	        21.57 ns/op	5933.34 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Murmur3Twmb-128
-BenchmarkHashes/Murmur3Twmb-128-12   	65979834	        18.17 ns/op	7044.75 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3Twmb/size=128-12   	65979834	        18.17 ns/op	7044.75 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/CityHash-128
-BenchmarkHashes/CityHash-128-12      	58966728	        20.63 ns/op	6205.47 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=CityHash/size=128-12      	58966728	        20.63 ns/op	6205.47 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Farmhash-128
-BenchmarkHashes/Farmhash-128-12      	100000000	        11.23 ns/op	11394.63 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Farmhash/size=128-12      	100000000	        11.23 ns/op	11394.63 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Highwayhash-128
-BenchmarkHashes/Highwayhash-128-12   	39832316	        29.82 ns/op	4292.58 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Highwayhash/size=128-12   	39832316	        29.82 ns/op	4292.58 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64-128
-BenchmarkHashes/XXHash64-128-12      	95019082	        12.48 ns/op	10255.45 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64/size=128-12      	95019082	        12.48 ns/op	10255.45 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64Asm-128
-BenchmarkHashes/XXHash64Asm-128-12   	100000000	        11.67 ns/op	10968.86 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64Asm/size=128-12   	100000000	        11.67 ns/op	10968.86 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha1-128
-BenchmarkHashes/Sha1-128-12          	15820732	        74.39 ns/op	1720.74 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha1/size=128-12          	15820732	        74.39 ns/op	1720.74 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Blake2b-128
-BenchmarkHashes/Blake2b-128-12       	 6914095	       175.6 ns/op	 728.85 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Blake2b/size=128-12       	 6914095	       175.6 ns/op	 728.85 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256-128
-BenchmarkHashes/Sha256-128-12        	15043712	        79.28 ns/op	1614.53 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256/size=128-12        	15043712	        79.28 ns/op	1614.53 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256Simd-128
-BenchmarkHashes/Sha256Simd-128-12    	13594171	        86.39 ns/op	1481.74 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256Simd/size=128-12    	13594171	        86.39 ns/op	1481.74 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha512-128
-BenchmarkHashes/Sha512-128-12        	 6923197	       172.1 ns/op	 743.65 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha512/size=128-12        	 6923197	       172.1 ns/op	 743.65 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/ChibiHash64-128
-BenchmarkHashes/ChibiHash64-128-12   	39112684	        31.01 ns/op	4127.45 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=ChibiHash64/size=128-12   	39112684	        31.01 ns/op	4127.45 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/MD5-128
-BenchmarkHashes/MD5-128-12           	 4799272	       248.5 ns/op	 514.99 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=MD5/size=128-12           	 4799272	       248.5 ns/op	 514.99 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Murmur3-256
-BenchmarkHashes/Murmur3-256-12       	31272531	        38.86 ns/op	6587.32 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3/size=256-12       	31272531	        38.86 ns/op	6587.32 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Murmur3Twmb-256
-BenchmarkHashes/Murmur3Twmb-256-12   	34885621	        34.65 ns/op	7389.10 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3Twmb/size=256-12   	34885621	        34.65 ns/op	7389.10 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/CityHash-256
-BenchmarkHashes/CityHash-256-12      	33104931	        36.03 ns/op	7104.60 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=CityHash/size=256-12      	33104931	        36.03 ns/op	7104.60 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Farmhash-256
-BenchmarkHashes/Farmhash-256-12      	67213082	        18.12 ns/op	14129.88 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Farmhash/size=256-12      	67213082	        18.12 ns/op	14129.88 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Highwayhash-256
-BenchmarkHashes/Highwayhash-256-12   	28043716	        44.00 ns/op	5818.10 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Highwayhash/size=256-12   	28043716	        44.00 ns/op	5818.10 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64-256
-BenchmarkHashes/XXHash64-256-12      	59701370	        20.18 ns/op	12682.97 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64/size=256-12      	59701370	        20.18 ns/op	12682.97 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64Asm-256
-BenchmarkHashes/XXHash64Asm-256-12   	63228333	        18.77 ns/op	13635.93 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64Asm/size=256-12   	63228333	        18.77 ns/op	13635.93 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha1-256
-BenchmarkHashes/Sha1-256-12          	 9984506	       119.0 ns/op	2150.41 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha1/size=256-12          	 9984506	       119.0 ns/op	2150.41 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Blake2b-256
-BenchmarkHashes/Blake2b-256-12       	 3651386	       329.2 ns/op	 777.76 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Blake2b/size=256-12       	 3651386	       329.2 ns/op	 777.76 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256-256
-BenchmarkHashes/Sha256-256-12        	 9441944	       126.5 ns/op	2023.46 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256/size=256-12        	 9441944	       126.5 ns/op	2023.46 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256Simd-256
-BenchmarkHashes/Sha256Simd-256-12    	 9035911	       132.6 ns/op	1931.18 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256Simd/size=256-12    	 9035911	       132.6 ns/op	1931.18 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha512-256
-BenchmarkHashes/Sha512-256-12        	 4723200	       251.6 ns/op	1017.65 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha512/size=256-12        	 4723200	       251.6 ns/op	1017.65 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/ChibiHash64-256
-BenchmarkHashes/ChibiHash64-256-12   	19908558	        60.58 ns/op	4225.78 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=ChibiHash64/size=256-12   	19908558	        60.58 ns/op	4225.78 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/MD5-256
-BenchmarkHashes/MD5-256-12           	 2881376	       414.2 ns/op	 618.04 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=MD5/size=256-12           	 2881376	       414.2 ns/op	 618.04 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Murmur3-512
-BenchmarkHashes/Murmur3-512-12       	15775220	        74.65 ns/op	6858.26 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3/size=512-12       	15775220	        74.65 ns/op	6858.26 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Murmur3Twmb-512
-BenchmarkHashes/Murmur3Twmb-512-12   	17118951	        69.04 ns/op	7416.30 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3Twmb/size=512-12   	17118951	        69.04 ns/op	7416.30 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/CityHash-512
-BenchmarkHashes/CityHash-512-12      	17651904	        67.43 ns/op	7592.93 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=CityHash/size=512-12      	17651904	        67.43 ns/op	7592.93 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Farmhash-512
-BenchmarkHashes/Farmhash-512-12      	35577032	        33.27 ns/op	15389.79 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Farmhash/size=512-12      	35577032	        33.27 ns/op	15389.79 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Highwayhash-512
-BenchmarkHashes/Highwayhash-512-12   	16565584	        72.37 ns/op	7074.40 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Highwayhash/size=512-12   	16565584	        72.37 ns/op	7074.40 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64-512
-BenchmarkHashes/XXHash64-512-12      	32129481	        36.25 ns/op	14124.97 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64/size=512-12      	32129481	        36.25 ns/op	14124.97 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64Asm-512
-BenchmarkHashes/XXHash64Asm-512-12   	35088616	        34.47 ns/op	14853.79 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64Asm/size=512-12   	35088616	        34.47 ns/op	14853.79 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha1-512
-BenchmarkHashes/Sha1-512-12          	 5605140	       210.8 ns/op	2429.08 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha1/size=512-12          	 5605140	       210.8 ns/op	2429.08 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Blake2b-512
-BenchmarkHashes/Blake2b-512-12       	 1910158	       638.4 ns/op	 802.06 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Blake2b/size=512-12       	 1910158	       638.4 ns/op	 802.06 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256-512
-BenchmarkHashes/Sha256-512-12        	 5505301	       217.9 ns/op	2349.24 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256/size=512-12        	 5505301	       217.9 ns/op	2349.24 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256Simd-512
-BenchmarkHashes/Sha256Simd-512-12    	 5271730	       225.3 ns/op	2272.73 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256Simd/size=512-12    	 5271730	       225.3 ns/op	2272.73 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha512-512
-BenchmarkHashes/Sha512-512-12        	 2956352	       407.0 ns/op	1258.01 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha512/size=512-12        	 2956352	       407.0 ns/op	1258.01 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/ChibiHash64-512
-BenchmarkHashes/ChibiHash64-512-12   	 9948894	       121.7 ns/op	4208.65 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=ChibiHash64/size=512-12   	 9948894	       121.7 ns/op	4208.65 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/MD5-512
-BenchmarkHashes/MD5-512-12           	 1595688	       749.9 ns/op	 682.71 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=MD5/size=512-12           	 1595688	       749.9 ns/op	 682.71 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Murmur3-1024
-BenchmarkHashes/Murmur3-1024-12      	 7956000	       150.2 ns/op	6818.98 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3/size=1024-12      	 7956000	       150.2 ns/op	6818.98 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Murmur3Twmb-1024
-BenchmarkHashes/Murmur3Twmb-1024-12  	 8505404	       143.5 ns/op	7135.07 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Murmur3Twmb/size=1024-12  	 8505404	       143.5 ns/op	7135.07 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/CityHash-1024
-BenchmarkHashes/CityHash-1024-12     	 9135241	       131.1 ns/op	7812.05 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=CityHash/size=1024-12     	 9135241	       131.1 ns/op	7812.05 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Farmhash-1024
-BenchmarkHashes/Farmhash-1024-12     	19015524	        63.51 ns/op	16122.71 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Farmhash/size=1024-12     	19015524	        63.51 ns/op	16122.71 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Highwayhash-1024
-BenchmarkHashes/Highwayhash-1024-12  	 9279117	       127.3 ns/op	8041.76 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Highwayhash/size=1024-12  	 9279117	       127.3 ns/op	8041.76 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64-1024
-BenchmarkHashes/XXHash64-1024-12     	17293900	        69.50 ns/op	14732.89 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64/size=1024-12     	17293900	        69.50 ns/op	14732.89 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/XXHash64Asm-1024
-BenchmarkHashes/XXHash64Asm-1024-12  	17568741	        67.48 ns/op	15174.44 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=XXHash64Asm/size=1024-12  	17568741	        67.48 ns/op	15174.44 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha1-1024
-BenchmarkHashes/Sha1-1024-12         	 3028755	       394.3 ns/op	2596.91 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha1/size=1024-12         	 3028755	       394.3 ns/op	2596.91 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Blake2b-1024
-BenchmarkHashes/Blake2b-1024-12      	  976724	      1255 ns/op	 815.90 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Blake2b/size=1024-12      	  976724	      1255 ns/op	 815.90 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256-1024
-BenchmarkHashes/Sha256-1024-12       	 2981834	       405.0 ns/op	2528.66 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256/size=1024-12       	 2981834	       405.0 ns/op	2528.66 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha256Simd-1024
-BenchmarkHashes/Sha256Simd-1024-12   	 2898090	       411.6 ns/op	2488.07 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha256Simd/size=1024-12   	 2898090	       411.6 ns/op	2488.07 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/Sha512-1024
-BenchmarkHashes/Sha512-1024-12       	 1657137	       727.3 ns/op	1408.01 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=Sha512/size=1024-12       	 1657137	       727.3 ns/op	1408.01 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/ChibiHash64-1024
-BenchmarkHashes/ChibiHash64-1024-12  	 4836104	       250.0 ns/op	4096.37 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=ChibiHash64/size=1024-12  	 4836104	       250.0 ns/op	4096.37 MB/s	       0 B/op	       0 allocs/op
 BenchmarkHashes/MD5-1024
-BenchmarkHashes/MD5-1024-12          	  784629	      1419 ns/op	 721.84 MB/s	       0 B/op	       0 allocs/op
+BenchmarkHashes/name=MD5/size=1024-12          	  784629	      1419 ns/op	 721.84 MB/s	       0 B/op	       0 allocs/op
 PASS
 ok  	golang	157.895s

@@ -434,7 +434,6 @@ export class WasmVisualizationController {
      * Update chart using BenchmarkReport data
      */
     private updateChartFromReport(report: BenchmarkReport): void {
-
         try {
             if (!window.Chart) {
                 this.showError("Chart.js not available");
@@ -592,7 +591,9 @@ export class WasmVisualizationController {
             headerRow.appendChild(th);
             const summaryCell = document.createElement('td');
 
-            summaryCell.textContent = this.formatMetricValue(table.summary[col].value, selectedMetric);
+            if (table.summary[col].value) {
+                summaryCell.textContent = this.formatMetricValue(table.summary[col].value, selectedMetric);
+            }
             if (table.summary[col].pctChange) {
                 const deltaSpan = document.createElement('span');
                 deltaSpan.className = 'delta-value';
