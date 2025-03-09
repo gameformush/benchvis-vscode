@@ -103,7 +103,7 @@ func (c *Config) Defaults() {
 	}
 }
 
-func BuildBenchstat(cfg *Config, paths []string, data []string) (*benchtab.Tables, error) {
+func BuildBenchstat(cfg Config, paths []string, data []string) (*benchtab.Tables, error) {
 	cfg.Defaults()
 
 	var parser benchproc.ProjectionParser

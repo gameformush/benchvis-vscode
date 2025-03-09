@@ -55,7 +55,7 @@ func BuildBenchstat(this js.Value, callArgs []js.Value) any {
 		})
 	}
 
-	stats, err := benchvis.BuildBenchstat(&args.Config, args.Paths, args.Data)
+	stats, err := benchvis.BuildBenchstat(args.Config, args.Paths, args.Data)
 	if err != nil {
 		return js.ValueOf(map[string]any{
 			"error": err.Error(),

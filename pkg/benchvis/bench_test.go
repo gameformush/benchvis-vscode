@@ -13,6 +13,7 @@ import (
 	"benchvis/pkg/benchmath"
 	"benchvis/pkg/benchproc"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
 )
 
@@ -26,6 +27,21 @@ func TestParseBenchmarkFiles(t *testing.T) {
 	resBy, err := json.MarshalIndent(res, "", "   ")
 	require.NoError(t, err)
 	println(string(resBy))
+}
+
+func TestParseBenchstat(t *testing.T) {
+	old, err := os.ReadFile("./testdata/crc-old-small.txt")
+	require.NoError(t, err)
+
+	new, err := os.ReadFile("./testdata/crc-new-small.txt")
+	require.NoError(t, err)
+
+	res, err := BuildBenchstat(Config{
+		Row: lo.ToPtr("/size"),
+		Col: lo.ToPtr("/poly"),
+	}, []string{"old.txt", "new.txt"}, []string{string(old), string(new)})
+	require.NoError(t, err)
+	require.NoError(t, res.ToJSON(os.Stdout))
 }
 
 func TestBenchvis(t *testing.T) {
