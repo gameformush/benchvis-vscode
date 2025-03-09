@@ -46,7 +46,15 @@ func parseBenchmarkFiles(this js.Value, callArgs []js.Value) any {
 	})
 }
 
-func BuildBenchstat(this js.Value, callArgs []js.Value) any {
+type BenchstatFormat int
+
+const (
+	JSONFormat BenchstatFormat = iota
+	TextFormat
+	CSVFormat
+)
+
+func buildBenchstat(this js.Value, callArgs []js.Value, format BenchstatFormat) any {
 	var args benchStatArgs
 	err := json.Unmarshal([]byte(callArgs[0].String()), &args)
 	if err != nil {
@@ -63,16 +71,41 @@ func BuildBenchstat(this js.Value, callArgs []js.Value) any {
 	}
 
 	buffer := bytes.NewBuffer(nil)
-	err = stats.ToJSON(buffer)
+	switch format {
+	case JSONFormat:
+		err = stats.ToJSON(buffer)
+	case TextFormat:
+		err = stats.ToText(buffer, false)
+	case CSVFormat:
+		err = stats.ToCSV(buffer, bytes.NewBuffer(nil))
+	default:
+		return js.ValueOf(map[string]any{
+			"error": err.Error(),
+		})
+	}
 	return js.ValueOf(map[string]any{
 		"data":  buffer.String(),
-		"error": err.Error(),
+		"error": nil,
 	})
+}
+
+func BuildBenchstat(this js.Value, callArgs []js.Value) any {
+	return buildBenchstat(this, callArgs, JSONFormat)
+}
+
+func BuildBenchstatText(this js.Value, callArgs []js.Value) any {
+	return buildBenchstat(this, callArgs, TextFormat)
+}
+
+func BuildBenchstatCSV(this js.Value, callArgs []js.Value) any {
+	return buildBenchstat(this, callArgs, CSVFormat)
 }
 
 func main() {
 	js.Global().Set("parseBenchmarkFiles", js.FuncOf(parseBenchmarkFiles))
 	js.Global().Set("buildBenchstat", js.FuncOf(BuildBenchstat))
+	js.Global().Set("buildBenchstatText", js.FuncOf(BuildBenchstatText))
+	js.Global().Set("buildBenchstatCsv", js.FuncOf(BuildBenchstatCSV))
 
 	println("wait")
 

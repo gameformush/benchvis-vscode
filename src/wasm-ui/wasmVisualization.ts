@@ -147,10 +147,11 @@ export class WasmVisualizationController {
     private selectedPalette = 'default';
     private customColors = [...COLOR_PALETTES.default];
     private benchmarkChart: any = null;
-    private benchmarkResults: BenchmarkResult[] = [];
+    private benchmarkResults: BenchmarkResult[] = []; // Keep for backward compatibility
+    private benchmarkReport: BenchmarkReport = []; // Store benchmark report directly
     private vscode = acquireVsCodeApi();
     private files: File[] = [];
-    private currentTab = 'chart-tab';
+    private currentTab = 'unified-tab';
 
     // Chart settings
     private chartSettings = {
@@ -189,10 +190,32 @@ export class WasmVisualizationController {
         try {
             if (event.data?.command === 'parseBenchmark') {
                 this.parseBenchmarkData(event.data.data);
+            } else if (event.data?.command === 'refreshData') {
+                // Re-run the analysis with updated configuration
+                this.refreshBenchmarkData();
             }
         } catch (error) {
             this.showError(`Error: ${error instanceof Error ? error.message : String(error)}`);
         }
+    }
+    
+    /**
+     * Refresh the benchmark data with updated config options
+     */
+    private refreshBenchmarkData(): void {
+        if (!this.files || this.files.length === 0) {
+            this.showError("No benchmark data available to refresh");
+            return;
+        }
+        
+        // Create and use the same data structure expected by parseBenchmarkData
+        const data: ParseBenchmarkData = {
+            paths: this.files.map(f => f.path),
+            data: this.files.map(f => f.data)
+        };
+        
+        // Re-parse with updated configuration values
+        this.parseBenchmarkData(data);
     }
 
     private loadWasmModule(): void {
@@ -226,22 +249,399 @@ export class WasmVisualizationController {
         }
 
         try {
-            const wasmResponse = window.parseBenchmarkFiles(JSON.stringify(data)) as WasmResponse;
-            if (wasmResponse.error) {
-                this.showError(`WASM error: ${wasmResponse.error}`);
+            // Get config values from the UI
+            const config: Config = this.getConfigFromUI();
+            
+            // Create the benchStatRequest with the data and config
+            const benchStatRequest: BenchStatRequest = {
+                paths: data.paths,
+                data: data.data,
+                config: config
+            };
+            
+            // Call buildBenchstat instead of parseBenchmarkFiles
+            const [result, error] = callBuildBenchstat(benchStatRequest);
+            
+            if (error) {
+                this.showError(`WASM error: ${error}`);
                 return;
             }
-            if (!wasmResponse.data) {
-                this.showError("WASM parseBenchmarkFiles no data returned")
-                return
+            
+            if (!result) {
+                this.showError("No benchmark data returned");
+                return;
             }
-            this.processBenchmarkResults(JSON.parse(wasmResponse.data));
+            
+            // Process the benchmark results
+            this.processBenchstatResults(result);
         } catch (error) {
             this.showError(`Error parsing data: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
 
+    /**
+     * Get configuration options from UI inputs
+     */
+    private getConfigFromUI(): Config {
+        const config: Config = {};
+        
+        // Get filter value
+        const filterInput = document.getElementById('benchmark-filter') as HTMLInputElement;
+        if (filterInput && filterInput.value) {
+            config.filter = filterInput.value;
+        }
+        
+        // Get row value
+        const rowInput = document.getElementById('benchmark-row') as HTMLInputElement;
+        if (rowInput && rowInput.value) {
+            config.row = rowInput.value;
+        }
+        
+        // Get col value
+        const colInput = document.getElementById('benchmark-col') as HTMLInputElement;
+        if (colInput && colInput.value) {
+            config.col = colInput.value;
+        }
+        
+        // Get ignore value
+        const ignoreInput = document.getElementById('benchmark-ignore') as HTMLInputElement;
+        if (ignoreInput && ignoreInput.value) {
+            config.ignore = ignoreInput.value;
+        }
+        
+        // Get table value
+        const tableInput = document.getElementById('benchmark-table') as HTMLInputElement;
+        if (tableInput && tableInput.value) {
+            config.table = tableInput.value;
+        }
+        
+        // Get confidence value
+        const confidenceInput = document.getElementById('benchmark-confidence') as HTMLInputElement;
+        if (confidenceInput && confidenceInput.value) {
+            const confidenceValue = parseFloat(confidenceInput.value);
+            if (!isNaN(confidenceValue)) {
+                config.confidence = confidenceValue;
+            }
+        }
+        
+        // Get compareAlpha value
+        const compareAlphaInput = document.getElementById('benchmark-compare-alpha') as HTMLInputElement;
+        if (compareAlphaInput && compareAlphaInput.value) {
+            const compareAlphaValue = parseFloat(compareAlphaInput.value);
+            if (!isNaN(compareAlphaValue)) {
+                config.compareAlpha = compareAlphaValue;
+            }
+        }
+        
+        return config;
+    }
+
+    /**
+     * Process benchmark report from benchstat
+     */
+    private processBenchstatResults(results: BenchmarkReport): void {
+        // Validate results
+        if (!results || !Array.isArray(results) || results.length === 0) {
+            this.showError("No valid benchmark data found");
+            return;
+        }
+
+        // Extract metrics from the first result
+        const firstTable = results[0];
+        if (!firstTable || !firstTable.unit) {
+            this.showError("Invalid benchmark data format");
+            return;
+        }
+
+        // Store the benchmark report directly
+        this.benchmarkReport = results;
+        
+        // Extract metrics and populate UI
+        const metrics = this.extractMetricsFromReport(results);
+        this.populateMetricsDropdown(metrics);
+
+        // Create benchmark list from report rows and cols
+        this.createBenchmarkListFromReport(results);
+
+        // Setup event listeners
+        this.setupUIEventListeners();
+
+        // Initialize visualization
+        this.updateCustomColorInputs();
+        this.updateChartFromReport(results);
+    }
+
+    /**
+     * Extract metrics from BenchmarkReport
+     */
+    private extractMetricsFromReport(report: BenchmarkReport): Array<{ name: string, displayName: string }> {
+        const metrics: Array<{ name: string, displayName: string }> = [];
+        let metricsFound = false;
+
+        // Add metrics from tables
+        report.forEach(table => {
+            if (table?.unit && !metrics.some(m => m.name === table.unit)) {
+                metrics.push({
+                    name: table.unit,
+                    displayName: this.formatMetricName(table.unit)
+                });
+                metricsFound = true;
+            }
+        });
+
+        if (!metricsFound) {
+            this.showError("No valid metrics found in the report");
+        }
+
+        return metrics;
+    }
+
+    /**
+     * Create benchmark list from BenchmarkReport
+     */
+    private createBenchmarkListFromReport(report: BenchmarkReport): void {
+        const list = document.getElementById('benchmark-list');
+        if (!list) return;
+
+        list.innerHTML = '';
+
+        // Collect all unique row names across all tables
+        const benchmarkNames = new Set<string>();
+        report.forEach(table => {
+            if (table?.rows) {
+                table.rows.forEach(row => benchmarkNames.add(row));
+            }
+        });
+
+        if (benchmarkNames.size === 0) {
+            this.showError("No benchmark names found in the report");
+            return;
+        }
+
+        // Add benchmark items to list
+        Array.from(benchmarkNames).sort().forEach((name, index) => {
+            const item = document.createElement('div');
+            item.className = 'benchmark-item';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'benchmark-checkbox';
+            checkbox.dataset.index = index.toString();
+            checkbox.checked = true;
+
+            const label = document.createElement('label');
+            label.textContent = name;
+
+            item.appendChild(checkbox);
+            item.appendChild(label);
+            list.appendChild(item);
+        });
+    }
+
+    /**
+     * Update chart using BenchmarkReport data
+     */
+    private updateChartFromReport(report: BenchmarkReport): void {
+        try {
+            if (!window.Chart) {
+                this.showError("Chart.js not available");
+                return;
+            }
+
+            const metricSelect = document.getElementById('metric-select') as HTMLSelectElement;
+            const chartTypeSelect = document.getElementById('chart-type') as HTMLSelectElement;
+            if (!metricSelect || !chartTypeSelect) return;
+
+            const selectedMetric = metricSelect.value;
+            const chartType = chartTypeSelect.value;
+            if (!selectedMetric) return;
+
+            // Get selected benchmarks
+            const selectedBenchmarks = this.getSelectedBenchmarksFromReport(report);
+            if (selectedBenchmarks.length === 0) return;
+
+            // Prepare chart data
+            const { datasets, labels } = this.prepareChartDataFromReport(
+                selectedBenchmarks,
+                selectedMetric,
+                chartType,
+                report
+            );
+
+            if (datasets.length === 0) return;
+
+            // Create chart config
+            const chartConfig = this.createChartConfig(
+                chartType,
+                labels,
+                datasets,
+                selectedMetric
+            );
+
+            // Render chart
+            this.renderChart(chartConfig, selectedBenchmarks, selectedMetric, chartType);
+            
+            // Update table view with the same data
+            this.updateTableFromReport(report, selectedMetric);
+        } catch (error) {
+            this.showError(`Chart error: ${error instanceof Error ? error.message : String(error)}`);
+        }
+    }
+
+    /**
+     * Get selected benchmarks from checkboxes
+     */
+    private getSelectedBenchmarksFromReport(report: BenchmarkReport): string[] {
+        const checkboxes = document.querySelectorAll('.benchmark-checkbox:checked');
+        return Array.from(checkboxes)
+            .map(checkbox => {
+                const nameEl = checkbox.nextElementSibling;
+                return nameEl ? nameEl.textContent : '';
+            })
+            .filter(Boolean) as string[];
+    }
+
+    /**
+     * Prepare chart data from BenchmarkReport
+     */
+    private prepareChartDataFromReport(
+        selectedBenchmarks: string[],
+        metric: string,
+        chartType: string,
+        report: BenchmarkReport
+    ): { datasets: ChartDataset[], labels: string[] } {
+        // Find the table with the selected metric
+        const table = report.find(t => t.unit === metric);
+        if (!table || !table.rows || !table.cols || !table.cells) {
+            return { datasets: [], labels: [] };
+        }
+
+        // Filter rows based on selected benchmarks
+        const filteredRows = table.rows.filter(row => selectedBenchmarks.includes(row));
+        if (filteredRows.length === 0) {
+            return { datasets: [], labels: [] };
+        }
+
+        // Create datasets - one for each column
+        const datasets: ChartDataset[] = [];
+        
+        table.cols.forEach((col, colIndex) => {
+            const data: (number | null)[] = [];
+            
+            // Collect data points for this column across all selected rows
+            filteredRows.forEach(row => {
+                const cell = table.cells[row]?.[col];
+                data.push(cell ? cell.center : null);
+            });
+            
+            // Skip if no valid data
+            if (!data.some(d => d !== null)) return;
+            
+            // Get color for this dataset
+            const colorIndex = colIndex % this.customColors.length;
+            const color = this.customColors[colorIndex];
+            
+            datasets.push({
+                label: col,
+                data: data,
+                backgroundColor: this.setAlpha(color, 0.5),
+                borderColor: color,
+                borderWidth: 1,
+                hoverBackgroundColor: this.setAlpha(color, 0.7),
+                hoverBorderColor: color,
+                pointBackgroundColor: color,
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: color
+            });
+        });
+        
+        // Use row names as labels
+        const labels = filteredRows;
+        
+        return { datasets, labels };
+    }
+
+    /**
+     * Update table view with data from BenchmarkReport
+     */
+    private updateTableFromReport(report: BenchmarkReport, selectedMetric: string): void {
+        const tableHeader = document.getElementById('table-header');
+        const tableBody = document.getElementById('table-body');
+        if (!tableHeader || !tableBody) return;
+        
+        // Clear existing table
+        tableHeader.innerHTML = '';
+        tableBody.innerHTML = '';
+        
+        // Find the table with the selected metric
+        const table = report.find(t => t.unit === selectedMetric);
+        if (!table || !table.rows || !table.cols || !table.cells) {
+            return;
+        }
+        
+        // Create header row
+        const headerRow = document.createElement('tr');
+        const benchmarkHeader = document.createElement('th');
+        benchmarkHeader.textContent = 'Benchmark';
+        headerRow.appendChild(benchmarkHeader);
+        
+        // Add column headers
+        table.cols.forEach(col => {
+            const th = document.createElement('th');
+            th.textContent = col;
+            headerRow.appendChild(th);
+        });
+        
+        tableHeader.appendChild(headerRow);
+        
+        // Get selected benchmarks
+        const selectedBenchmarks = this.getSelectedBenchmarksFromReport(report);
+        
+        // Create table rows
+        table.rows.forEach(row => {
+            // Skip if not selected
+            if (!selectedBenchmarks.includes(row)) return;
+            
+            const tr = document.createElement('tr');
+            
+            // Add row name
+            const rowCell = document.createElement('td');
+            rowCell.textContent = row;
+            tr.appendChild(rowCell);
+            
+            // Add data cells
+            table.cols.forEach(col => {
+                const cell = table.cells[row]?.[col];
+                const td = document.createElement('td');
+                
+                if (cell) {
+                    td.textContent = this.formatMetricValue(cell.center, selectedMetric);
+                    
+                    // Add comparison info if available
+                    if (cell.comparison) {
+                        const deltaSpan = document.createElement('span');
+                        deltaSpan.className = 'delta-value';
+                        deltaSpan.textContent = ` (${cell.comparison.delta})`;
+                        td.appendChild(deltaSpan);
+                    }
+                    
+                    // Add warning if any
+                    if (cell.warnings && cell.warnings.length > 0) {
+                        td.classList.add('has-warning');
+                        td.title = cell.warnings.join('\n');
+                    }
+                }
+                
+                tr.appendChild(td);
+            });
+            
+            tableBody.appendChild(tr);
+        });
+    }
+
     private processBenchmarkResults(results: BenchmarkResult[]): void {
+        // This method is kept for backward compatibility
         // Validate results
         if (!this.validateResults(results)) return;
 
@@ -895,13 +1295,19 @@ export class WasmVisualizationController {
     public handleTabChange(tabId: string): void {
         this.currentTab = tabId;
 
-        // Perform actions based on which tab is selected
-        if (tabId === 'table-tab') {
-            this.updateTable();
-        } else if (tabId === 'chart-tab') {
-            if (this.benchmarkChart) {
+        // With a unified tab view, we just need to make sure both chart and table are updated
+        if (tabId === 'unified-tab') {
+            if (this.benchmarkReport.length > 0) {
+                const metricSelect = document.getElementById('metric-select') as HTMLSelectElement;
+                if (metricSelect && metricSelect.value) {
+                    this.updateChartFromReport(this.benchmarkReport);
+                }
+            } else if (this.benchmarkResults.length > 0) {
+                // Backward compatibility
                 this.updateChart(this.benchmarkResults);
             }
+        } else if (tabId === 'settings-tab') {
+            // No additional action needed for settings tab
         }
     }
 
@@ -914,9 +1320,13 @@ export class WasmVisualizationController {
         if (setting in this.chartSettings) {
             (this.chartSettings as any)[setting] = value;
 
-            // Only update chart if we're on the chart tab
-            if (this.currentTab === 'chart-tab' && this.benchmarkChart) {
-                this.updateChart(this.benchmarkResults);
+            // Update chart if we're on the unified tab
+            if (this.currentTab === 'unified-tab' && this.benchmarkChart) {
+                if (this.benchmarkReport.length > 0) {
+                    this.updateChartFromReport(this.benchmarkReport);
+                } else {
+                    this.updateChart(this.benchmarkResults);
+                }
             }
         }
     }

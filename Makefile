@@ -1,6 +1,9 @@
 .PHONY: build build-extension build-wasm-ui bench-one
 
-build: build-extension build-wasm-ui
+build: build-extension build-wasm-ui build-wasm
+	
+build-wasm:
+	GOOS=js GOARCH=wasm go build -o dist/main.wasm
 
 build-extension:
 	node esbuild.js --extension-only
