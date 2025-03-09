@@ -2,7 +2,9 @@
   "name": "benchvis-vscode",
   "displayName": "Benchmarks Visualization for Visual Studio Code",
   "description": "Visualize and analyze Go benchmark results directly in Visual Studio Code",
-  "repository": "https://github.com/gameformush/benchvis-vscode",
+  "repository": {
+    "url": "https://github.com/gameformush/benchvis-vscode"
+  },
   "version": "0.1.6",
   "icon": "icon.png",
   "engines": {
@@ -36,7 +38,7 @@
       },
       {
         "command": "benchvis-vscode.visualize-benchmark-selected",
-        "title": "Benchvis: compare multiple"
+        "title": "Compare Selected in Benchvis"
       }
     ]
   },

@@ -1,8 +1,8 @@
-# BenchVis: Go Benchmark Visualization
+# Benchvis: Go Benchmark Visualization
 
-BenchVis is a VS Code extension for visualizing Go benchmark results. It supports both raw Go benchmark output and `benchstat` formatted comparisons with an interactive, customizable visualization interface.
+Benchvis is a VS Code extension for visualizing Go benchmark results. It supports both raw Go benchmark output and `benchstat` formatted comparisons with an interactive, customizable visualization interface.
 
-![BenchVis Logo](./usage.jpg)
+![Benchvis Logo](./usage.jpg)
 
 ## Features
 
@@ -16,9 +16,10 @@ Visualize the results of Go benchmarks directly from test output:
 - Support for various input sizes and benchmark configurations
 
 To use this feature:
+
 1. Run your Go benchmarks and copy the output
 2. Open the output in VS Code
-3. Run the command `BenchVis: Visualize Go Benchmark Output`
+3. Run the command `Benchvis: Visualize Go Benchmark Output`
 
 ### Benchstat Visualization
 
@@ -30,9 +31,10 @@ Visualize and compare benchmark results processed with Go's `benchstat` tool:
 - Customizable charts with multiple views and options
 
 To use this feature:
+
 1. Run benchstat to compare benchmark results
 2. Open the benchstat output in VS Code
-3. Run the command `BenchVis: Visualize Benchstat Output`
+3. Run the command `Benchvis: Visualize Benchstat Output`
 
 ### Visualization Features
 
@@ -59,6 +61,7 @@ The extension has no external dependencies and works with any Go benchmark outpu
 ### Working with Raw Go Benchmarks
 
 1. Run your Go benchmarks with:
+
    ```sh
    go test -bench . > benchmarks.txt
    ```
@@ -66,13 +69,15 @@ The extension has no external dependencies and works with any Go benchmark outpu
 2. Open the benchmark file in VS Code
 
 3. Open the command palette (Ctrl+Shift+P / Cmd+Shift+P) and run:
-   ```
-   BenchVis: Visualize Go Benchmark Output
+
+   ```plain
+   Benchvis: Visualize Go Benchmark Output
    ```
 
 ### Working with Benchstat Output
 
 1. Run benchstat to compare benchmark results:
+
    ```sh
    benchstat old.txt new.txt > comparison.txt
    ```
@@ -80,8 +85,9 @@ The extension has no external dependencies and works with any Go benchmark outpu
 2. Open the comparison file in VS Code
 
 3. Open the command palette (Ctrl+Shift+P / Cmd+Shift+P) and run:
-   ```
-   BenchVis: Visualize Benchstat Output
+
+   ```plain
+   Benchvis: Visualize Benchstat Output
    ```
 
 ## Chart Interface
@@ -106,6 +112,7 @@ The visualization interface provides multiple options:
 ### 1.0.0
 
 Initial release with support for:
+
 - Raw Go benchmark visualization
 - Benchstat comparison visualization
 - Interactive charts and customization options

@@ -14,5 +14,9 @@
 	"go.toolsEnvVars": {
 		"GOOS": "js",
 		"GOARCH": "wasm",
-	}
+	},
+	"cSpell.words": [
+		"benchstat",
+		"benchvis"
+	]
 }
