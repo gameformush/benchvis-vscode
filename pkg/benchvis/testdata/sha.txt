@@ -3,4 +3,4 @@ goarch: amd64
 pkg: blobs/fastsha
 cpu: Intel(R) Core(TM) i9-9980HK CPU @ 2.40GHz
 BenchmarkSha-16        	 4564456	       248.4 ns/op	     120 B/op	       3 allocs/op
-BenchmarkShaFast-16    	 6182563	       202.7 ns/op	      64 B/op	       1 allocs/o
+BenchmarkShaFast-16    	 6182563	       202.7 ns/op	      64 B/op	       1 allocs/op

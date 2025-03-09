@@ -17,7 +17,7 @@ import (
 )
 
 func TestParseBenchmarkFiles(t *testing.T) {
-	data, err := os.ReadFile("./testdata/bench_arm64.txt")
+	data, err := os.ReadFile("./testdata/sha.txt")
 	require.NoError(t, err)
 
 	res, _, err := ParseBenchmarkFiles([]string{"test-file.text"}, []string{string(data)})

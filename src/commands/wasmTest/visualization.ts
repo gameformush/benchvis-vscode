@@ -18,7 +18,8 @@ let currentPanel: vscode.WebviewPanel | undefined = undefined;
 /**
  * Creates or reveals a webview panel for visualizing benchmark data
  * @param context Extension context
- * @param benchmarkData Parsed benchmark data to visualize
+ * @param filePath The path to the benchmark file
+ * @param content The content of the benchmark file
  */
 export function createVisualizationPanel(
     context: vscode.ExtensionContext, filePath: string, content: string
@@ -82,7 +83,8 @@ export function createVisualizationPanel(
 /**
  * Updates the visualization panel with benchmark data
  * @param panel The webview panel to update
- * @param benchmarkData The benchmark data to visualize
+ * @param filePath The path to the benchmark file
+ * @param data The benchmark data content
  * @param context Extension context
  */
 function updateVisualizationPanel(
@@ -90,52 +92,74 @@ function updateVisualizationPanel(
     filePath: string, data: string,
     context: vscode.ExtensionContext
 ) {
-    // Get the Chart.js URI
-    const wasmUri = panel.webview.asWebviewUri(
-        vscode.Uri.file(path.join(context.extensionPath, 'dist', 'main.wasm'))
-    );
+    try {
+        // Get the WASM URI
+        const wasmUri = panel.webview.asWebviewUri(
+            vscode.Uri.file(path.join(context.extensionPath, 'dist', 'main.wasm'))
+        );
 
-    const wasmjs = panel.webview.asWebviewUri(
-        vscode.Uri.file(path.join(context.extensionPath, 'templates', 'wasm.js'))
-    );
-    // Read the template file
-    const templatePath = path.join(context.extensionPath, 'templates', 'wasm.hbs');
-    const templateContent = fs.readFileSync(templatePath, 'utf8');
+        // Get the WASM JS URI
+        const wasmJs = panel.webview.asWebviewUri(
+            vscode.Uri.file(path.join(context.extensionPath, 'templates', 'wasm.js'))
+        );
 
-    const nonce = getNonce();
+        // Get the WASM visualization JS URI
+        const wasmVisualizationJs = panel.webview.asWebviewUri(
+            vscode.Uri.file(path.join(context.extensionPath, 'dist', 'wasm-ui', 'wasmVisualization.js'))
+        );
 
-    // Compile the template
-    const template = Handlebars.compile(templateContent);
+        // Read the template file (using the new TypeScript-based template)
+        const templatePath = path.join(context.extensionPath, 'templates', 'wasm-ts.hbs');
+        const templateContent = fs.readFileSync(templatePath, 'utf8');
 
-    const chartJsUri = panel.webview.asWebviewUri(
-        vscode.Uri.file(path.join(context.extensionPath, 'node_modules', 'chart.js', 'dist', 'chart.umd.js'))
-    );
+        const nonce = getNonce();
 
-    // Render the template with data
-    const html = template({
-        WASM_URL: wasmUri,
-        chartJsUri: chartJsUri,
-        cspSource: panel.webview.cspSource,
-        nonce: nonce,
-        wasmjs: wasmjs
-    });
+        // Compile the template
+        const template = Handlebars.compile(templateContent);
 
-    console.log(html)
-    panel.webview.html = html;
-    panel.webview.onDidReceiveMessage((event) => {
-        switch (event.command) {
-            case "loaded":
-                panel.webview.postMessage({
-                    command: 'parseBenchmark', data: {
-                        paths: [filePath],
-                        data: [data]
-                    }
-                });
-                break
-        }
-    });
+        // Get Chart.js URI
+        const chartJsUri = panel.webview.asWebviewUri(
+            vscode.Uri.file(path.join(context.extensionPath, 'node_modules', 'chart.js', 'dist', 'chart.umd.js'))
+        );
+
+        // Render the template with data
+        const html = template({
+            WASM_URL: wasmUri,
+            chartJsUri: chartJsUri,
+            cspSource: panel.webview.cspSource,
+            nonce: nonce,
+            wasmjs: wasmJs,
+            wasmVisualizationJs: wasmVisualizationJs
+        });
+
+        // Set the webview HTML content
+        panel.webview.html = html;
+
+        // Handle messages from the webview
+        panel.webview.onDidReceiveMessage((event) => {
+            switch (event.command) {
+                case "loaded":
+                    // When the WASM module is loaded, send the benchmark data for parsing
+                    panel.webview.postMessage({
+                        command: 'parseBenchmark', 
+                        data: {
+                            paths: [filePath],
+                            data: [data]
+                        }
+                    });
+                    break;
+            }
+        });
+    } catch (error) {
+        console.error('Error updating visualization panel:', error);
+        vscode.window.showErrorMessage(`Failed to create visualization: ${error instanceof Error ? error.message : String(error)}`);
+    }
 }
 
+/**
+ * Generates a nonce for content security policy
+ * @returns A randomly generated nonce string
+ */
 const getNonce = (): string => {
     let text = '';
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

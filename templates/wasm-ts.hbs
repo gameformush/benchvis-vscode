@@ -1,0 +1,236 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta http-equiv="Content-Security-Policy"
+		content="default-src 'none'; connect-src {{{cspSource}}}; img-src {{{cspSource}}}; style-src {{{cspSource}}} 'unsafe-inline'; script-src 'nonce-{{nonce}}' 'unsafe-eval'; worker-src blob:;">
+
+	<script nonce="{{nonce}}" src="{{{wasmjs}}}"></script>
+	<title>Benchmark Visualization</title>
+	<script nonce="{{nonce}}" src="{{chartJsUri}}"></script>
+	<script nonce="{{nonce}}" src="{{{wasmVisualizationJs}}}"></script>
+	<style>
+		body {
+			font-family: var(--vscode-font-family);
+			color: var(--vscode-foreground);
+			background-color: var(--vscode-editor-background);
+			padding: 20px;
+			margin: 0;
+		}
+
+		h1,
+		h2 {
+			color: var(--vscode-editor-foreground);
+		}
+
+		.metadata {
+			margin-bottom: 20px;
+			padding: 10px;
+			background-color: var(--vscode-editor-inactiveSelectionBackground);
+			border-radius: 5px;
+		}
+
+		.controls {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 15px;
+			margin-bottom: 20px;
+			padding: 15px;
+			background-color: var(--vscode-editor-inactiveSelectionBackground);
+			border-radius: 5px;
+		}
+
+		.control-group {
+			flex: 1;
+			min-width: 200px;
+		}
+
+		.control-group h3 {
+			margin-top: 0;
+		}
+
+		label {
+			display: block;
+			margin-bottom: 5px;
+		}
+
+		select,
+		input[type="color"] {
+			width: 100%;
+			padding: 8px;
+			margin-bottom: 10px;
+			background-color: var(--vscode-input-background);
+			color: var(--vscode-input-foreground);
+			border: 1px solid var(--vscode-input-border);
+			border-radius: 3px;
+		}
+
+		button {
+			background-color: var(--vscode-button-background);
+			color: var(--vscode-button-foreground);
+			border: none;
+			padding: 8px 16px;
+			border-radius: 3px;
+			cursor: pointer;
+			margin-top: 10px;
+		}
+
+		button:hover {
+			background-color: var(--vscode-button-hoverBackground);
+		}
+
+		.benchmark-list {
+			max-height: 200px;
+			overflow-y: auto;
+			padding: 5px;
+			background-color: var(--vscode-input-background);
+			border: 1px solid var(--vscode-input-border);
+			border-radius: 3px;
+		}
+
+		.benchmark-item {
+			display: flex;
+			align-items: center;
+			margin-bottom: 5px;
+		}
+
+		.benchmark-item input {
+			margin-right: 8px;
+		}
+
+		.chart-container {
+			position: relative;
+			height: 400px;
+			margin-top: 20px;
+			padding: 15px;
+			background-color: var(--vscode-editor-inactiveSelectionBackground);
+			border-radius: 5px;
+		}
+
+		.color-palette {
+			display: flex;
+			gap: 10px;
+			margin-bottom: 10px;
+		}
+
+		.palette {
+			cursor: pointer;
+			display: flex;
+			width: 100px;
+			height: 20px;
+			border-radius: 3px;
+			overflow: hidden;
+		}
+
+		.palette-color {
+			flex: 1;
+			height: 100%;
+		}
+
+		.palette.selected {
+			outline: 2px solid var(--vscode-focusBorder);
+		}
+
+		.custom-colors {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 5px;
+			margin-top: 10px;
+		}
+
+		.color-input {
+			display: flex;
+			align-items: center;
+			margin-bottom: 5px;
+		}
+
+		.color-input input {
+			margin-right: 5px;
+			width: 50px;
+		}
+
+		.tooltip {
+			background-color: var(--vscode-editor-background);
+			border: 1px solid var(--vscode-input-border);
+			padding: 10px;
+			border-radius: 5px;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+		}
+
+		.error-message {
+			color: var(--vscode-errorForeground);
+			background-color: var(--vscode-inputValidation-errorBackground);
+			border: 1px solid var(--vscode-inputValidation-errorBorder);
+			padding: 10px;
+			margin: 10px 0;
+			border-radius: 5px;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>Benchmark Visualization</h1>
+
+	<div id="error-container"></div>
+
+	<div class="controls">
+		<div class="control-group">
+			<h3>Benchmarks</h3>
+			<div id="benchmark-list" class="benchmark-list">
+				<!-- Benchmarks will be populated here -->
+			</div>
+		</div>
+
+		<div class="control-group">
+			<h3>Metrics</h3>
+			<label for="metric-select">Metric:</label>
+			<select id="metric-select">
+				<!-- Metrics will be populated here -->
+			</select>
+
+			<label for="chart-type">Chart Type:</label>
+			<select id="chart-type">
+				<option value="bar">Bar Chart</option>
+				<option value="line">Line Chart</option>
+				<option value="radar">Radar Chart</option>
+				<option value="polarArea">Polar Area</option>
+				<option value="doughnut">Doughnut</option>
+			</select>
+		</div>
+
+		<div class="control-group">
+			<h3>Colors</h3>
+			<div class="color-palette">
+				<div class="palette selected" data-palette="default">
+					<div class="palette-color" style="background-color: #4285F4"></div>
+					<div class="palette-color" style="background-color: #EA4335"></div>
+					<div class="palette-color" style="background-color: #FBBC05"></div>
+					<div class="palette-color" style="background-color: #34A853"></div>
+				</div>
+				<div class="palette" data-palette="pastel">
+					<div class="palette-color" style="background-color: #ff9aa2"></div>
+					<div class="palette-color" style="background-color: #c7ceea"></div>
+					<div class="palette-color" style="background-color: #b5ead7"></div>
+					<div class="palette-color" style="background-color: #ffdac1"></div>
+				</div>
+			</div>
+			<div id="custom-colors" class="custom-colors">
+				<!-- Color inputs will be populated here -->
+			</div>
+		</div>
+	</div>
+
+	<div class="chart-container">
+		<canvas id="benchmarkChart"></canvas>
+	</div>
+	<script nonce="{{nonce}}">
+		// Initialize the WASM visualization with the URL to the WASM binary
+		const wasmUrl = '{{{WASM_URL}}}';
+		const visualization = WasmVis.initializeWasmVisualization(wasmUrl);
+	</script>
+</body>
+
+</html>
