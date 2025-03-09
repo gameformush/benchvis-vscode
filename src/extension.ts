@@ -9,8 +9,8 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('benchvis-vscode.visualize-file', visFile(context)),
 		vscode.commands.registerCommand('benchvis-vscode.visualize-benchstat', benchStat(context)),
-		vscode.commands.registerCommand('benchvis-vscode.wasm-test', wasmCmd(context)),
-		vscode.commands.registerCommand('benchvis-vscode.wasm-selected', wasmMultiCmd(context))
+		vscode.commands.registerCommand('benchvis-vscode.visualize-benchmark', wasmCmd(context)),
+		vscode.commands.registerCommand('benchvis-vscode.visualize-benchmark-selected', wasmMultiCmd(context))
 	);
 }
 

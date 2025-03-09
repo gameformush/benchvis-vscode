@@ -3,7 +3,7 @@
   "displayName": "benchvis-vscode",
   "description": "Visualize golang benchmark results",
   "repository": "https://github.com/gameformush/-vscode",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "icon": "icon.png",
   "engines": {
     "vscode": "^1.97.0"
@@ -27,19 +27,15 @@
     },
     "commands": [
       {
-        "command": "benchvis-vscode.visualize-file",
-        "title": "Benchvis: Visualize Go Benchmark File"
-      },
-      {
-        "command": "benchvis-vscode.wasm-test",
-        "title": "Benchvis: WASM test"
+        "command": "benchvis-vscode.visualize-benchmark",
+        "title": "Benchvis: Visualize benchmark results"
       },
       {
         "command": "benchvis-vscode.visualize-benchstat",
         "title": "Benchvis: Visualize Benchstat Results"
       },
       {
-        "command": "benchvis-vscode.wasm-selected",
+        "command": "benchvis-vscode.visualize-benchmark-selected",
         "title": "Benchvis: compare multiple"
       }
     ]
