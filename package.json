@@ -3,7 +3,7 @@
   "displayName": "benchvis-vscode",
   "description": "Visualize golang benchmark results",
   "repository": "https://github.com/gameformush/benchvis-vscode",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "icon": "icon.png",
   "engines": {
     "vscode": "^1.97.0"
@@ -19,7 +19,7 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "benchvis-vscode.wasm-selected",
+          "command": "benchvis-vscode.visualize-benchmark-selected",
           "group": "3_compare",
           "title": "Benchvis: compare multiple"
         }
