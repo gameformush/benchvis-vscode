@@ -140,6 +140,8 @@ export const callBuildBenchstat = (args: BenchStatRequest): [BenchmarkReport | n
     return [(JSON.parse(wasmResponse.data)), null];
 }
 
+const vscode = acquireVsCodeApi();
+
 /**
  * WASM Visualization Controller
  */
@@ -147,9 +149,7 @@ export class WasmVisualizationController {
     private selectedPalette = 'default';
     private customColors = [...COLOR_PALETTES.default];
     private benchmarkChart: any = null;
-    private benchmarkResults: BenchmarkResult[] = []; // Keep for backward compatibility
     private benchmarkReport: BenchmarkReport = []; // Store benchmark report directly
-    private vscode = acquireVsCodeApi();
     private files: File[] = [];
     private currentTab = 'unified-tab';
 
@@ -198,7 +198,7 @@ export class WasmVisualizationController {
             this.showError(`Error: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
-    
+
     /**
      * Refresh the benchmark data with updated config options
      */
@@ -207,13 +207,13 @@ export class WasmVisualizationController {
             this.showError("No benchmark data available to refresh");
             return;
         }
-        
+
         // Create and use the same data structure expected by parseBenchmarkData
         const data: ParseBenchmarkData = {
             paths: this.files.map(f => f.path),
             data: this.files.map(f => f.data)
         };
-        
+
         // Re-parse with updated configuration values
         this.parseBenchmarkData(data);
     }
@@ -230,7 +230,7 @@ export class WasmVisualizationController {
         loadWasm
             .then(obj => {
                 go.run(obj.instance);
-                this.vscode.postMessage({ command: 'loaded' });
+                vscode.postMessage({ command: 'loaded' });
             })
             .catch(error => {
                 this.showError(`Failed to load WASM: ${error.message}`);
@@ -251,27 +251,25 @@ export class WasmVisualizationController {
         try {
             // Get config values from the UI
             const config: Config = this.getConfigFromUI();
-            
+
             // Create the benchStatRequest with the data and config
             const benchStatRequest: BenchStatRequest = {
                 paths: data.paths,
                 data: data.data,
                 config: config
             };
-            
+
             // Call buildBenchstat instead of parseBenchmarkFiles
             const [result, error] = callBuildBenchstat(benchStatRequest);
-            
             if (error) {
                 this.showError(`WASM error: ${error}`);
                 return;
             }
-            
             if (!result) {
                 this.showError("No benchmark data returned");
                 return;
             }
-            
+
             // Process the benchmark results
             this.processBenchstatResults(result);
         } catch (error) {
@@ -284,37 +282,37 @@ export class WasmVisualizationController {
      */
     private getConfigFromUI(): Config {
         const config: Config = {};
-        
+
         // Get filter value
         const filterInput = document.getElementById('benchmark-filter') as HTMLInputElement;
         if (filterInput && filterInput.value) {
             config.filter = filterInput.value;
         }
-        
+
         // Get row value
         const rowInput = document.getElementById('benchmark-row') as HTMLInputElement;
         if (rowInput && rowInput.value) {
             config.row = rowInput.value;
         }
-        
+
         // Get col value
         const colInput = document.getElementById('benchmark-col') as HTMLInputElement;
         if (colInput && colInput.value) {
             config.col = colInput.value;
         }
-        
+
         // Get ignore value
         const ignoreInput = document.getElementById('benchmark-ignore') as HTMLInputElement;
         if (ignoreInput && ignoreInput.value) {
             config.ignore = ignoreInput.value;
         }
-        
+
         // Get table value
         const tableInput = document.getElementById('benchmark-table') as HTMLInputElement;
         if (tableInput && tableInput.value) {
             config.table = tableInput.value;
         }
-        
+
         // Get confidence value
         const confidenceInput = document.getElementById('benchmark-confidence') as HTMLInputElement;
         if (confidenceInput && confidenceInput.value) {
@@ -323,7 +321,7 @@ export class WasmVisualizationController {
                 config.confidence = confidenceValue;
             }
         }
-        
+
         // Get compareAlpha value
         const compareAlphaInput = document.getElementById('benchmark-compare-alpha') as HTMLInputElement;
         if (compareAlphaInput && compareAlphaInput.value) {
@@ -332,7 +330,7 @@ export class WasmVisualizationController {
                 config.compareAlpha = compareAlphaValue;
             }
         }
-        
+
         return config;
     }
 
@@ -355,7 +353,7 @@ export class WasmVisualizationController {
 
         // Store the benchmark report directly
         this.benchmarkReport = results;
-        
+
         // Extract metrics and populate UI
         const metrics = this.extractMetricsFromReport(results);
         this.populateMetricsDropdown(metrics);
@@ -367,7 +365,6 @@ export class WasmVisualizationController {
         this.setupUIEventListeners();
 
         // Initialize visualization
-        this.updateCustomColorInputs();
         this.updateChartFromReport(results);
     }
 
@@ -480,7 +477,7 @@ export class WasmVisualizationController {
 
             // Render chart
             this.renderChart(chartConfig, selectedBenchmarks, selectedMetric, chartType);
-            
+
             // Update table view with the same data
             this.updateTableFromReport(report, selectedMetric);
         } catch (error) {
@@ -491,7 +488,7 @@ export class WasmVisualizationController {
     /**
      * Get selected benchmarks from checkboxes
      */
-    private getSelectedBenchmarksFromReport(report: BenchmarkReport): string[] {
+    private getSelectedBenchmarksFromReport(): string[] {
         const checkboxes = document.querySelectorAll('.benchmark-checkbox:checked');
         return Array.from(checkboxes)
             .map(checkbox => {
@@ -524,23 +521,23 @@ export class WasmVisualizationController {
 
         // Create datasets - one for each column
         const datasets: ChartDataset[] = [];
-        
+
         table.cols.forEach((col, colIndex) => {
             const data: (number | null)[] = [];
-            
+
             // Collect data points for this column across all selected rows
             filteredRows.forEach(row => {
                 const cell = table.cells[row]?.[col];
                 data.push(cell ? cell.center : null);
             });
-            
+
             // Skip if no valid data
             if (!data.some(d => d !== null)) return;
-            
+
             // Get color for this dataset
             const colorIndex = colIndex % this.customColors.length;
             const color = this.customColors[colorIndex];
-            
+
             datasets.push({
                 label: col,
                 data: data,
@@ -555,10 +552,10 @@ export class WasmVisualizationController {
                 pointHoverBorderColor: color
             });
         });
-        
+
         // Use row names as labels
         const labels = filteredRows;
-        
+
         return { datasets, labels };
     }
 
@@ -569,55 +566,55 @@ export class WasmVisualizationController {
         const tableHeader = document.getElementById('table-header');
         const tableBody = document.getElementById('table-body');
         if (!tableHeader || !tableBody) return;
-        
+
         // Clear existing table
         tableHeader.innerHTML = '';
         tableBody.innerHTML = '';
-        
+
         // Find the table with the selected metric
         const table = report.find(t => t.unit === selectedMetric);
         if (!table || !table.rows || !table.cols || !table.cells) {
             return;
         }
-        
+
         // Create header row
         const headerRow = document.createElement('tr');
         const benchmarkHeader = document.createElement('th');
         benchmarkHeader.textContent = 'Benchmark';
         headerRow.appendChild(benchmarkHeader);
-        
+
         // Add column headers
         table.cols.forEach(col => {
             const th = document.createElement('th');
             th.textContent = col;
             headerRow.appendChild(th);
         });
-        
+
         tableHeader.appendChild(headerRow);
-        
+
         // Get selected benchmarks
         const selectedBenchmarks = this.getSelectedBenchmarksFromReport(report);
-        
+
         // Create table rows
         table.rows.forEach(row => {
             // Skip if not selected
             if (!selectedBenchmarks.includes(row)) return;
-            
+
             const tr = document.createElement('tr');
-            
+
             // Add row name
             const rowCell = document.createElement('td');
             rowCell.textContent = row;
             tr.appendChild(rowCell);
-            
+
             // Add data cells
             table.cols.forEach(col => {
                 const cell = table.cells[row]?.[col];
                 const td = document.createElement('td');
-                
+
                 if (cell) {
                     td.textContent = this.formatMetricValue(cell.center, selectedMetric);
-                    
+
                     // Add comparison info if available
                     if (cell.comparison) {
                         const deltaSpan = document.createElement('span');
@@ -625,90 +622,19 @@ export class WasmVisualizationController {
                         deltaSpan.textContent = ` (${cell.comparison.delta})`;
                         td.appendChild(deltaSpan);
                     }
-                    
+
                     // Add warning if any
                     if (cell.warnings && cell.warnings.length > 0) {
                         td.classList.add('has-warning');
                         td.title = cell.warnings.join('\n');
                     }
                 }
-                
+
                 tr.appendChild(td);
             });
-            
+
             tableBody.appendChild(tr);
         });
-    }
-
-    private processBenchmarkResults(results: BenchmarkResult[]): void {
-        // This method is kept for backward compatibility
-        // Validate results
-        if (!this.validateResults(results)) return;
-
-        this.benchmarkResults = results;
-
-        // Extract metrics and populate UI
-        const metrics = this.extractMetrics(results);
-        this.populateMetricsDropdown(metrics);
-
-        // Create benchmark list
-        this.createBenchmarkList(results);
-
-        // Setup event listeners
-        this.setupUIEventListeners();
-
-        // Initialize visualization
-        this.updateCustomColorInputs();
-        this.updateChart(results);
-    }
-
-    private validateResults(results: BenchmarkResult[]): boolean {
-        if (!results) {
-            this.showError("No benchmark results returned");
-            return false;
-        }
-
-        if (!Array.isArray(results)) {
-            this.showError("Invalid benchmark results format");
-            return false;
-        }
-
-        if (results.length === 0) {
-            this.showError("No benchmark results found");
-            return false;
-        }
-
-        if (!window.Chart) {
-            this.showError("Chart.js library is not loaded");
-            return false;
-        }
-
-        return true;
-    }
-
-    private extractMetrics(results: BenchmarkResult[]): Array<{ name: string, displayName: string }> {
-        const metrics: Array<{ name: string, displayName: string }> = [];
-        let metricsFound = false;
-
-        results.forEach(result => {
-            if (result?.values?.length) {
-                result.values.forEach(value => {
-                    if (value?.unit && !metrics.some(m => m.name === value.unit)) {
-                        metrics.push({
-                            name: value.unit,
-                            displayName: this.formatMetricName(value.unit)
-                        });
-                        metricsFound = true;
-                    }
-                });
-            }
-        });
-
-        if (!metricsFound) {
-            this.showError("No valid metrics found");
-        }
-
-        return metrics;
     }
 
     private populateMetricsDropdown(metrics: Array<{ name: string, displayName: string }>): void {
@@ -737,49 +663,11 @@ export class WasmVisualizationController {
         }
     }
 
-    private createBenchmarkList(results: BenchmarkResult[]): void {
-        const list = document.getElementById('benchmark-list');
-        if (!list) return;
-
-        list.innerHTML = '';
-
-        // Get unique benchmark names
-        const names = new Set<string>();
-        results.forEach(result => {
-            if (result?.name) names.add(result.name);
-        });
-
-        if (names.size === 0) {
-            this.showError("No valid benchmark names found");
-            return;
-        }
-
-        // Add benchmark items to list
-        Array.from(names).sort().forEach((name, index) => {
-            const item = document.createElement('div');
-            item.className = 'benchmark-item';
-
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.className = 'benchmark-checkbox';
-            checkbox.dataset.index = index.toString();
-            checkbox.checked = true;
-
-            const label = document.createElement('label');
-            label.textContent = name;
-
-            item.appendChild(checkbox);
-            item.appendChild(label);
-            list.appendChild(item);
-        });
-    }
-
     private setupUIEventListeners(): void {
         // Checkbox listeners
         document.querySelectorAll('.benchmark-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', () => {
-                this.updateCustomColorInputs();
-                this.updateChart(this.benchmarkResults);
+                this.updateChartFromReport(this.benchmarkReport)
             });
         });
 
@@ -790,7 +678,7 @@ export class WasmVisualizationController {
         const metricSelect = document.getElementById('metric-select');
         if (metricSelect) {
             metricSelect.addEventListener('change', () => {
-                this.updateChart(this.benchmarkResults);
+                this.updateChartFromReport(this.benchmarkReport)
             });
         }
 
@@ -798,7 +686,8 @@ export class WasmVisualizationController {
         const chartType = document.getElementById('chart-type');
         if (chartType) {
             chartType.addEventListener('change', () => {
-                this.updateChart(this.benchmarkResults);
+                this.updateChartFromReport(this.benchmarkReport)
+
             });
         }
 
@@ -817,205 +706,10 @@ export class WasmVisualizationController {
                     });
                     paletteElement.classList.add('selected');
 
-                    this.updateCustomColorInputs();
-                    this.updateChart(this.benchmarkResults);
+                    this.updateChartFromReport(this.benchmarkReport)
                 }
             });
         });
-    }
-
-    private updateCustomColorInputs(): void {
-        const container = document.getElementById('custom-colors');
-        if (!container) return;
-
-        container.innerHTML = '';
-
-        // Get selected benchmarks
-        const checkboxes = document.querySelectorAll('.benchmark-checkbox:checked');
-        Array.from(checkboxes).forEach((checkbox, index) => {
-            const nameEl = checkbox.nextElementSibling;
-            if (!nameEl) return;
-
-            const name = nameEl.textContent || `Benchmark ${index + 1}`;
-            const colorIndex = index % this.customColors.length;
-
-            // Create color input
-            const colorInput = document.createElement('div');
-            colorInput.className = 'color-input';
-            colorInput.innerHTML = `
-                <input type="color" data-index="${index}" value="${this.customColors[colorIndex]}">
-                <span>${name}</span>
-            `;
-
-            container.appendChild(colorInput);
-        });
-
-        // Add event listeners
-        document.querySelectorAll('#custom-colors input[type="color"]').forEach(input => {
-            input.addEventListener('change', (event) => {
-                const target = event.target as HTMLInputElement;
-                const index = parseInt(target.dataset.index || '0');
-                this.customColors[index % this.customColors.length] = target.value;
-                this.updateChart(this.benchmarkResults);
-            });
-        });
-    }
-
-    private updateChart(results: BenchmarkResult[]): void {
-        try {
-            if (!window.Chart) {
-                this.showError("Chart.js not available");
-                return;
-            }
-
-            const selectedBenchmarks = this.getSelectedBenchmarks(results);
-            if (selectedBenchmarks.length === 0) return;
-
-            const metricSelect = document.getElementById('metric-select') as HTMLSelectElement;
-            const chartTypeSelect = document.getElementById('chart-type') as HTMLSelectElement;
-            if (!metricSelect || !chartTypeSelect) return;
-
-            const selectedMetric = metricSelect.value;
-            const chartType = chartTypeSelect.value;
-            if (!selectedMetric) return;
-
-            // Prepare chart data
-            const { datasets, labels } = this.prepareChartData(
-                selectedBenchmarks,
-                selectedMetric,
-                chartType
-            );
-
-            if (datasets.length === 0) return;
-
-            // Create chart config
-            const chartConfig = this.createChartConfig(
-                chartType,
-                labels,
-                datasets,
-                selectedMetric
-            );
-
-            // Render chart
-            this.renderChart(chartConfig, selectedBenchmarks, selectedMetric, chartType);
-
-        } catch (error) {
-            this.showError(`Chart error: ${error instanceof Error ? error.message : String(error)}`);
-        }
-    }
-
-    private prepareChartData(
-        benchmarks: BenchmarkResult[],
-        metric: string,
-        chartType: string
-    ): { datasets: ChartDataset[], labels: string[] } {
-        // Group benchmarks by name
-        const benchmarksByName: Record<string, BenchmarkResult[]> = {};
-        const nameSet = new Set<string>();
-
-        benchmarks.forEach(benchmark => {
-            if (benchmark?.name) {
-                if (!benchmarksByName[benchmark.name]) {
-                    benchmarksByName[benchmark.name] = [];
-                    nameSet.add(benchmark.name);
-                }
-                benchmarksByName[benchmark.name].push(benchmark);
-            }
-        });
-
-        const names = Array.from(nameSet).sort();
-
-        // Create datasets
-        const datasets: ChartDataset[] = [];
-
-        names.forEach((name, index) => {
-            const benchmarkGroup = benchmarksByName[name];
-            if (!benchmarkGroup?.length) return;
-
-            // Get metric values
-            const values = benchmarkGroup.map(benchmark => {
-                return this.getMetricValue(benchmark, metric);
-            });
-
-            // Skip if no valid values
-            if (!values.some(v => v !== null)) return;
-
-            // Get color for this dataset
-            const colorIndex = index % this.customColors.length;
-            const color = this.customColors[colorIndex];
-
-            datasets.push({
-                label: name,
-                data: values,
-                backgroundColor: this.setAlpha(color, 0.5),
-                borderColor: color,
-                borderWidth: 1,
-                hoverBackgroundColor: this.setAlpha(color, 0.7),
-                hoverBorderColor: color,
-                pointBackgroundColor: color,
-                pointBorderColor: '#fff',
-                pointHoverBackgroundColor: '#fff',
-                pointHoverBorderColor: color
-            });
-        });
-
-        // Determine chart labels
-        let labels = this.determineChartLabels(benchmarks, names, chartType);
-
-        // Ensure labels match dataset length
-        if (datasets.length > 0 && datasets[0].data.length > labels.length) {
-            while (labels.length < datasets[0].data.length) {
-                labels.push(`Item ${labels.length + 1}`);
-            }
-        }
-        console.log("DATAset", datasets, labels)
-
-        return { datasets, labels };
-    }
-
-    private determineChartLabels(
-        benchmarks: BenchmarkResult[],
-        benchmarkNames: string[],
-        chartType: string
-    ): string[] {
-        // First try to use config values for labels
-        const configKeys = new Set<string>();
-        benchmarks.forEach(benchmark => {
-            if (benchmark?.config?.length) {
-                benchmark.config.forEach(cfg => {
-                    if (cfg?.key) configKeys.add(cfg.key);
-                });
-            }
-        });
-
-        // Find differentiating keys
-        const differentiatingKeys = Array.from(configKeys).filter(key => {
-            const values = new Set();
-            benchmarks.forEach(benchmark => {
-                if (benchmark?.config?.length) {
-                    const config = benchmark.config.find(cfg => cfg?.key === key);
-                    if (config?.value) values.add(config.value);
-                }
-            });
-            return values.size > 1;
-        });
-
-        // Use first differentiating key if available
-        if (differentiatingKeys.length > 0) {
-            const key = differentiatingKeys[0];
-            return benchmarks.map(benchmark => {
-                if (benchmark?.config?.length) {
-                    const config = benchmark.config.find(cfg => cfg?.key === key);
-                    return config?.value ? `${key}: ${config.value}` : 'Unknown';
-                }
-                return 'Unknown';
-            });
-        }
-
-        // Fallback to benchmark names or indices
-        return chartType === 'bar' || chartType === 'line'
-            ? benchmarkNames
-            : benchmarks.map((_, i) => `Run ${i + 1}`);
     }
 
     private createChartConfig(
@@ -1118,7 +812,7 @@ export class WasmVisualizationController {
 
     private renderChart(
         config: any,
-        benchmarks: BenchmarkResult[],
+        benchmarks: string[],
         metric: string,
         chartType: string
     ): void {
@@ -1143,9 +837,9 @@ export class WasmVisualizationController {
         this.benchmarkChart = new window.Chart(ctx, config);
 
         // Notify extension
-        this.vscode.postMessage({
+        vscode.postMessage({
             command: 'updateVisualization',
-            selectedBenchmarks: Array.from(new Set(benchmarks.map(b => b.name))),
+            selectedBenchmarks: benchmarks,
             selectedMetric: metric,
             chartType
         });
@@ -1220,20 +914,6 @@ export class WasmVisualizationController {
         }
     }
 
-    private getSelectedBenchmarks(results: BenchmarkResult[]): BenchmarkResult[] {
-        if (!results?.length) return [];
-
-        const checkboxes = document.querySelectorAll('.benchmark-checkbox:checked');
-        const selectedNames = Array.from(checkboxes)
-            .map(checkbox => {
-                const nameEl = checkbox.nextElementSibling;
-                return nameEl ? nameEl.textContent : '';
-            })
-            .filter(Boolean);
-
-        return results.filter(result => result?.name && selectedNames.includes(result.name));
-    }
-
     /**
      * Initialize settings form elements with current values
      */
@@ -1281,13 +961,6 @@ export class WasmVisualizationController {
         }
     }
 
-    private getMetricValue(result: BenchmarkResult, metricName: string): number | null {
-        if (!result?.values?.length) return null;
-
-        const metric = result.values.find(v => v?.unit === metricName);
-        return metric ? metric.value : null;
-    }
-
     /**
      * Handle tab change event from the UI
      * @param tabId The ID of the tab that was selected
@@ -1297,14 +970,9 @@ export class WasmVisualizationController {
 
         // With a unified tab view, we just need to make sure both chart and table are updated
         if (tabId === 'unified-tab') {
-            if (this.benchmarkReport.length > 0) {
-                const metricSelect = document.getElementById('metric-select') as HTMLSelectElement;
-                if (metricSelect && metricSelect.value) {
-                    this.updateChartFromReport(this.benchmarkReport);
-                }
-            } else if (this.benchmarkResults.length > 0) {
-                // Backward compatibility
-                this.updateChart(this.benchmarkResults);
+            const metricSelect = document.getElementById('metric-select') as HTMLSelectElement;
+            if (metricSelect && metricSelect.value) {
+                this.updateChartFromReport(this.benchmarkReport);
             }
         } else if (tabId === 'settings-tab') {
             // No additional action needed for settings tab
@@ -1322,11 +990,7 @@ export class WasmVisualizationController {
 
             // Update chart if we're on the unified tab
             if (this.currentTab === 'unified-tab' && this.benchmarkChart) {
-                if (this.benchmarkReport.length > 0) {
-                    this.updateChartFromReport(this.benchmarkReport);
-                } else {
-                    this.updateChart(this.benchmarkResults);
-                }
+                this.updateChartFromReport(this.benchmarkReport);
             }
         }
     }
@@ -1345,7 +1009,7 @@ export class WasmVisualizationController {
             const dataUrl = this.benchmarkChart.toBase64Image();
 
             // Send the data URL to the extension for saving
-            this.vscode.postMessage({
+            vscode.postMessage({
                 command: 'exportChart',
                 format: format,
                 dataUrl: dataUrl
@@ -1353,72 +1017,6 @@ export class WasmVisualizationController {
         } catch (error) {
             this.showError(`Failed to export chart: ${error instanceof Error ? error.message : String(error)}`);
         }
-    }
-
-    /**
-     * Update the table view with the current benchmark data
-     */
-    private updateTable(): void {
-        const metricSelect = document.getElementById('table-metric-select') as HTMLSelectElement;
-        if (!metricSelect) return;
-
-        const selectedMetric = metricSelect.value;
-        if (!selectedMetric || !this.benchmarkResults.length) return;
-
-        const tableHeader = document.getElementById('table-header');
-        const tableBody = document.getElementById('table-body');
-        if (!tableHeader || !tableBody) return;
-
-        // Clear existing table
-        tableHeader.innerHTML = '';
-        tableBody.innerHTML = '';
-
-        // Create header row
-        const headerRow = document.createElement('tr');
-        const benchmarkHeader = document.createElement('th');
-        benchmarkHeader.textContent = 'Benchmark';
-        headerRow.appendChild(benchmarkHeader);
-
-        const valueHeader = document.createElement('th');
-        valueHeader.textContent = this.formatMetricName(selectedMetric);
-        headerRow.appendChild(valueHeader);
-
-        tableHeader.appendChild(headerRow);
-
-        // Group results by name for the table
-        const benchmarksByName = new Map<string, BenchmarkResult[]>();
-        this.benchmarkResults.forEach(result => {
-            if (!result?.name) return;
-
-            if (!benchmarksByName.has(result.name)) {
-                benchmarksByName.set(result.name, []);
-            }
-            benchmarksByName.get(result.name)?.push(result);
-        });
-
-        // Create table rows
-        benchmarksByName.forEach((benchmarks, name) => {
-            // Average the values for this benchmark
-            const values = benchmarks
-                .map(b => this.getMetricValue(b, selectedMetric))
-                .filter((v): v is number => v !== null);
-
-            if (values.length) {
-                const avg = values.reduce((a, b) => a + b, 0) / values.length;
-
-                const row = document.createElement('tr');
-
-                const nameCell = document.createElement('td');
-                nameCell.textContent = name;
-                row.appendChild(nameCell);
-
-                const valueCell = document.createElement('td');
-                valueCell.textContent = this.formatMetricValue(avg, selectedMetric);
-                row.appendChild(valueCell);
-
-                tableBody.appendChild(row);
-            }
-        });
     }
 }
 

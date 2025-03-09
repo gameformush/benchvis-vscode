@@ -70,7 +70,7 @@
 			border: 1px solid var(--vscode-input-border);
 			border-radius: 3px;
 		}
-		
+
 		.apply-button {
 			background-color: var(--vscode-button-background);
 			color: var(--vscode-button-foreground);
@@ -81,11 +81,11 @@
 			margin-top: 20px;
 			font-weight: bold;
 		}
-		
+
 		.apply-button:hover {
 			background-color: var(--vscode-button-hoverBackground);
 		}
-		
+
 		.help-text {
 			font-size: 0.9em;
 			color: var(--vscode-descriptionForeground);
@@ -183,7 +183,7 @@
 			border-radius: 5px;
 			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 		}
-		
+
 		.error-message {
 			color: var(--vscode-errorForeground);
 			background-color: var(--vscode-inputValidation-errorBackground);
@@ -199,7 +199,7 @@
 			margin-bottom: 0;
 			border-bottom: 1px solid var(--vscode-input-border);
 		}
-		
+
 		.tab {
 			padding: 8px 16px;
 			cursor: pointer;
@@ -208,12 +208,12 @@
 			margin-right: 2px;
 			background-color: var(--vscode-editor-inactiveSelectionBackground);
 		}
-		
+
 		.tab.active {
 			background-color: var(--vscode-button-background);
 			color: var(--vscode-button-foreground);
 		}
-		
+
 		.tab-content {
 			display: none;
 			padding: 15px;
@@ -221,7 +221,7 @@
 			border-bottom-left-radius: 5px;
 			border-bottom-right-radius: 5px;
 		}
-		
+
 		.tab-content.active {
 			display: block;
 		}
@@ -233,7 +233,7 @@
 			align-items: center;
 			margin-bottom: 10px;
 		}
-		
+
 		.grid-display-toggle input,
 		.animation-toggle input {
 			margin-right: 8px;
@@ -247,23 +247,24 @@
 			background-color: var(--vscode-editor-inactiveSelectionBackground);
 			border-radius: 5px;
 		}
-		
+
 		.table-view table {
 			width: 100%;
 			border-collapse: collapse;
 		}
-		
-		.table-view th, .table-view td {
+
+		.table-view th,
+		.table-view td {
 			padding: 8px;
 			text-align: left;
 			border-bottom: 1px solid var(--vscode-input-border);
 		}
-		
+
 		.table-view th {
 			background-color: var(--vscode-button-background);
 			color: var(--vscode-button-foreground);
 		}
-		
+
 		.table-view tr:hover {
 			background-color: var(--vscode-list-hoverBackground);
 		}
@@ -273,7 +274,7 @@
 			gap: 5px;
 			margin-top: 10px;
 		}
-		
+
 		/* Unified Layout Styles */
 		.unified-layout {
 			display: flex;
@@ -281,14 +282,14 @@
 			height: calc(100vh - 120px);
 			min-height: 500px;
 		}
-		
+
 		.side-panel {
 			flex: 0 0 300px;
 			overflow-y: auto;
 			padding-right: 10px;
 			max-height: 100%;
 		}
-		
+
 		.main-panel {
 			flex: 1;
 			display: flex;
@@ -297,7 +298,7 @@
 			overflow-y: auto;
 			max-height: 100%;
 		}
-		
+
 		.table-container {
 			flex: 1;
 			min-height: 200px;
@@ -307,21 +308,21 @@
 			overflow: auto;
 			margin-top: 20px;
 		}
-		
+
 		.config-row {
 			display: flex;
 			gap: 10px;
 		}
-		
+
 		.config-col {
 			flex: 1;
 		}
-		
+
 		.delta-value {
 			color: var(--vscode-charts-blue);
 			font-size: 0.9em;
 		}
-		
+
 		.has-warning {
 			color: var(--vscode-editorWarning-foreground);
 			text-decoration: underline dotted;
@@ -330,15 +331,12 @@
 </head>
 
 <body>
-	<h1>Benchmark Visualization</h1>
-	
 	<div id="error-container"></div>
-
 	<div class="tabs">
 		<div class="tab active" data-tab="unified-tab">Benchmark Visualization</div>
 		<div class="tab" data-tab="settings-tab">Appearance</div>
 	</div>
-	
+
 	<div id="unified-tab" class="tab-content active">
 		<div class="unified-layout">
 			<div class="side-panel">
@@ -348,14 +346,14 @@
 						<!-- Benchmarks will be populated here -->
 					</div>
 				</div>
-				
+
 				<div class="control-group">
 					<h3>Visualization</h3>
 					<label for="metric-select">Metric:</label>
 					<select id="metric-select">
 						<!-- Metrics will be populated here -->
 					</select>
-					
+
 					<label for="chart-type">Chart Type:</label>
 					<select id="chart-type">
 						<option value="bar">Bar Chart</option>
@@ -365,19 +363,19 @@
 						<option value="doughnut">Doughnut</option>
 					</select>
 				</div>
-				
+
 				<div class="control-group">
 					<h3>Benchstat Configuration</h3>
-					
+
 					<label for="benchmark-filter">Filter:</label>
 					<input type="text" id="benchmark-filter" placeholder="e.g. Algorithm1|Algorithm2">
-					
+
 					<label for="benchmark-row">Row:</label>
 					<input type="text" id="benchmark-row" placeholder="e.g. \d+_\d+">
-					
+
 					<label for="benchmark-col">Column:</label>
 					<input type="text" id="benchmark-col" placeholder="e.g. Version">
-					
+
 					<div class="config-row">
 						<div class="config-col">
 							<label for="benchmark-ignore">Ignore:</label>
@@ -388,7 +386,7 @@
 							<input type="text" id="benchmark-table" placeholder="e.g. mem">
 						</div>
 					</div>
-					
+
 					<div class="config-row">
 						<div class="config-col">
 							<label for="benchmark-confidence">Confidence:</label>
@@ -399,10 +397,10 @@
 							<input type="number" id="benchmark-compare-alpha" min="0" max="1" step="0.01" value="0.05">
 						</div>
 					</div>
-					
+
 					<button id="apply-config" class="apply-button">Apply Configuration</button>
 				</div>
-				
+
 				<div class="control-group">
 					<h3>Colors</h3>
 					<div class="color-palette">
@@ -419,22 +417,18 @@
 							<div class="palette-color" style="background-color: #ffdac1"></div>
 						</div>
 					</div>
-					<div id="custom-colors" class="custom-colors">
-						<!-- Color inputs will be populated here -->
-					</div>
-					
 					<div class="export-buttons">
 						<button id="export-png">Export PNG</button>
 						<button id="export-svg">Export SVG</button>
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="main-panel">
 				<div class="chart-container">
 					<canvas id="benchmarkChart"></canvas>
 				</div>
-				
+
 				<div class="table-container">
 					<h3>Data Table</h3>
 					<div class="table-view">
@@ -451,27 +445,27 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div id="settings-tab" class="tab-content">
 		<div class="controls">
 			<div class="control-group">
 				<h3>Chart Settings</h3>
-				
+
 				<div class="grid-display-toggle">
 					<input type="checkbox" id="show-grid" checked>
 					<label for="show-grid">Show Grid</label>
 				</div>
-				
+
 				<div class="grid-display-toggle">
 					<input type="checkbox" id="show-x-grid" checked>
 					<label for="show-x-grid">X-axis Grid Lines</label>
 				</div>
-				
+
 				<div class="grid-display-toggle">
 					<input type="checkbox" id="show-y-grid" checked>
 					<label for="show-y-grid">Y-axis Grid Lines</label>
 				</div>
-				
+
 				<label for="point-style">Point Style</label>
 				<select id="point-style">
 					<option value="circle">Circle</option>
@@ -485,12 +479,12 @@
 					<option value="star">Star</option>
 					<option value="triangle">Triangle</option>
 				</select>
-				
+
 				<div class="animation-toggle">
 					<input type="checkbox" id="enable-animations" checked>
 					<label for="enable-animations">Enable Animations</label>
 				</div>
-				
+
 				<label for="legend-position">Legend Position</label>
 				<select id="legend-position">
 					<option value="top">Top</option>
@@ -499,18 +493,18 @@
 					<option value="right">Right</option>
 				</select>
 			</div>
-			
+
 			<div class="control-group">
 				<h3>Font Settings</h3>
-				
+
 				<label for="title-size">Title Font Size</label>
 				<input type="range" id="title-size" min="8" max="24" value="14">
 				<span id="title-size-value">14px</span>
-				
+
 				<label for="label-size">Axis Label Font Size</label>
 				<input type="range" id="label-size" min="8" max="20" value="12">
 				<span id="label-size-value">12px</span>
-				
+
 				<label for="tick-size">Tick Font Size</label>
 				<input type="range" id="tick-size" min="6" max="16" value="10">
 				<span id="tick-size-value">10px</span>
@@ -536,16 +530,16 @@
 			document.querySelectorAll('.tab-content').forEach(content => {
 				content.classList.remove('active');
 			});
-			
+
 			// Deactivate all tabs
 			document.querySelectorAll('.tab').forEach(tab => {
 				tab.classList.remove('active');
 			});
-			
+
 			// Activate the selected tab and content
 			document.getElementById(tabId).classList.add('active');
 			document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
-			
+
 			// Notify controller about tab change
 			visualization.handleTabChange(tabId);
 		}
@@ -554,7 +548,7 @@
 		document.getElementById('export-png')?.addEventListener('click', () => {
 			visualization.exportChart('png');
 		});
-		
+
 		document.getElementById('export-svg')?.addEventListener('click', () => {
 			visualization.exportChart('svg');
 		});
@@ -563,39 +557,39 @@
 		document.getElementById('show-grid')?.addEventListener('change', (e) => {
 			visualization.updateChartSetting('showGrid', e.target.checked);
 		});
-		
+
 		document.getElementById('show-x-grid')?.addEventListener('change', (e) => {
 			visualization.updateChartSetting('showXGrid', e.target.checked);
 		});
-		
+
 		document.getElementById('show-y-grid')?.addEventListener('change', (e) => {
 			visualization.updateChartSetting('showYGrid', e.target.checked);
 		});
-		
+
 		document.getElementById('point-style')?.addEventListener('change', (e) => {
 			visualization.updateChartSetting('pointStyle', e.target.value);
 		});
-		
+
 		document.getElementById('enable-animations')?.addEventListener('change', (e) => {
 			visualization.updateChartSetting('enableAnimations', e.target.checked);
 		});
-		
+
 		document.getElementById('legend-position')?.addEventListener('change', (e) => {
 			visualization.updateChartSetting('legendPosition', e.target.value);
 		});
-		
+
 		document.getElementById('title-size')?.addEventListener('input', (e) => {
 			const value = parseInt(e.target.value);
 			document.getElementById('title-size-value').textContent = `${value}px`;
 			visualization.updateChartSetting('titleSize', value);
 		});
-		
+
 		document.getElementById('label-size')?.addEventListener('input', (e) => {
 			const value = parseInt(e.target.value);
 			document.getElementById('label-size-value').textContent = `${value}px`;
 			visualization.updateChartSetting('labelSize', value);
 		});
-		
+
 		document.getElementById('tick-size')?.addEventListener('input', (e) => {
 			const value = parseInt(e.target.value);
 			document.getElementById('tick-size-value').textContent = `${value}px`;
@@ -603,12 +597,11 @@
 		});
 
 		// No need to connect table metric select as we now have a unified view
-		
+
 		// Apply Configuration button
 		document.getElementById('apply-config')?.addEventListener('click', () => {
 			// Trigger a data refresh with the new configuration
-			const vscode = acquireVsCodeApi();
-			vscode.postMessage({ command: 'refreshData' });
+			visualization.refreshBenchmarkData();
 		});
 	</script>
 </body>
