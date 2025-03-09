@@ -3,7 +3,7 @@
   "displayName": "benchvis-vscode",
   "description": "Visualize golang benchmark results",
   "repository": "https://github.com/gameformush/-vscode",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.97.0"
   },
