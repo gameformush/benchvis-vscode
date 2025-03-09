@@ -41,6 +41,44 @@ export interface BenchStatRequest {
     config: Config
 }
 
+// Main benchmark data structure
+interface BenchmarkData {
+    ".unit": string;
+    unit: string;
+    assumption: string;
+    cells: Record<string, Record<string, BenchmarkMeasurement>>;
+    cols: string[];
+    goarch: string;
+    goos: string;
+    pkg: string;
+    rows: string[];
+    summary: Record<string, BenchmarkSummaryItem>;
+    summaryLabel: string;
+}
+
+// Measurement data for a single benchmark
+interface BenchmarkMeasurement {
+    center: number;
+    range: string;
+    comparison?: {
+        delta: string;
+        nSamples: number;
+        pValue: number;
+    };
+    warnings?: string[];
+}
+
+// Summary item
+interface BenchmarkSummaryItem {
+    value: number;
+    pctChange?: string;
+    ratio?: number;
+}
+
+// Array of benchmark data
+type BenchmarkReport = BenchmarkData[];
+
+
 // Utility Interface Types
 
 interface WasmResponse {
@@ -90,13 +128,16 @@ interface File {
     data: string
 }
 
-export const callBuildBenchstat = (args: BenchStatRequest): [WasmResponse | null, string | null] => {
+export const callBuildBenchstat = (args: BenchStatRequest): [BenchmarkReport | null, string | null] => {
     const wasmResponse = buildBenchstat(JSON.stringify(args)) as WasmResponse;
     if (wasmResponse.error) {
         return [null, wasmResponse.error];
     }
+    if (!wasmResponse.data) {
+        return [null, "WASM no benchstat data returned"]
+    }
 
-    return [wasmResponse, null];
+    return [(JSON.parse(wasmResponse.data)), null];
 }
 
 /**
