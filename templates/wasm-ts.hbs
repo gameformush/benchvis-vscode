@@ -13,127 +13,238 @@
 	<script nonce="{{nonce}}" src="{{chartJsUri}}"></script>
 	<script nonce="{{nonce}}" src="{{{wasmVisualizationJs}}}"></script>
 	<style>
+		/* Base styling using VS Code theme variables for consistency */
 		body {
 			font-family: var(--vscode-font-family);
 			color: var(--vscode-foreground);
 			background-color: var(--vscode-editor-background);
-			padding: 20px;
+			padding: 0;
 			margin: 0;
-		}
-
-		h1,
-		h2 {
-			color: var(--vscode-editor-foreground);
-		}
-
-		.metadata {
-			margin-bottom: 20px;
-			padding: 10px;
-			background-color: var(--vscode-editor-inactiveSelectionBackground);
-			border-radius: 5px;
-		}
-
-		.controls {
+			font-size: var(--vscode-font-size);
+			line-height: var(--vscode-line-height);
+			height: 100vh;
+			width: 100vw;
+			overflow: hidden;
 			display: flex;
-			flex-wrap: wrap;
-			gap: 15px;
-			margin-bottom: 20px;
-			padding: 15px;
-			background-color: var(--vscode-editor-inactiveSelectionBackground);
-			border-radius: 5px;
+			flex-direction: column;
+			box-sizing: border-box;
 		}
 
+		/* Apply border-box to all elements for consistent sizing */
+		*, *:before, *:after {
+			box-sizing: border-box;
+		}
+
+		/* Headings styled to match VS Code's heading styles */
+		h1, h2, h3 {
+			color: var(--vscode-foreground);
+			font-weight: var(--vscode-font-weight);
+			margin-top: 20px;
+			margin-bottom: 10px;
+		}
+
+		h1 {
+			font-size: 1.6em;
+		}
+
+		h2 {
+			font-size: 1.4em;
+		}
+
+		h3 {
+			font-size: 1.2em;
+			margin-top: 0;
+		}
+
+		/* Containers styled like VS Code panels */
+		.metadata, .controls {
+			padding: 15px;
+			background-color: var(--vscode-editor-background);
+			border: 1px solid var(--vscode-panel-border);
+			border-radius: var(--vscode-panel-border-radius, 5px);
+		}
+
+		.chart-container, .table-container, .side-panel {
+			background-color: var(--vscode-editor-background);
+			border: 1px solid var(--vscode-panel-border);
+			border-radius: var(--vscode-panel-border-radius, 5px);
+			overflow: hidden;
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for all containers */
+		}
+
+		.chart-container {
+			padding: 10px;
+		}
+
+		.table-container {
+			padding: 0;
+		}
+
+		/* Form controls consistent with VS Code input styling */
 		.control-group {
 			flex: 1;
 			min-width: 200px;
-		}
-
-		.control-group h3 {
-			margin-top: 0;
+			margin-bottom: 15px;
 		}
 
 		label {
 			display: block;
 			margin-bottom: 5px;
+			color: var(--vscode-input-placeholderForeground);
 		}
 
+		/* Input styling for all form elements */
 		select,
 		input[type="color"],
 		input[type="range"],
 		input[type="text"],
 		input[type="number"] {
 			width: 100%;
-			padding: 8px;
+			padding: 6px;
 			margin-bottom: 10px;
 			background-color: var(--vscode-input-background);
 			color: var(--vscode-input-foreground);
 			border: 1px solid var(--vscode-input-border);
-			border-radius: 3px;
+			border-radius: var(--vscode-input-border-radius, 3px);
+			font-family: var(--vscode-font-family);
+			font-size: var(--vscode-font-size);
+		}
+
+		input[type="range"] {
+			padding: 3px;
+		}
+
+		select:focus,
+		input:focus {
+			outline: 1px solid var(--vscode-focusBorder);
+			outline-offset: -1px;
+		}
+
+		/* Button styling to match VS Code buttons */
+		button, .apply-button {
+			width: 100%;
+			background-color: var(--vscode-button-background);
+			color: var(--vscode-button-foreground);
+			border: none;
+			padding: 6px 14px;
+			border-radius: var(--vscode-button-border-radius, 2px);
+			cursor: pointer;
+			font-family: var(--vscode-font-family);
+			font-size: var(--vscode-font-size);
+			font-weight: var(--vscode-font-weight);
 		}
 
 		.apply-button {
-			background-color: var(--vscode-button-background);
-			color: var(--vscode-button-foreground);
-			border: none;
-			padding: 10px 20px;
-			border-radius: 3px;
-			cursor: pointer;
 			margin-top: 20px;
-			font-weight: bold;
+			font-weight: 500;
 		}
 
-		.apply-button:hover {
+		button:hover, .apply-button:hover {
 			background-color: var(--vscode-button-hoverBackground);
 		}
 
+		button:active, .apply-button:active {
+			background-color: var(--vscode-button-pressedBackground, var(--vscode-button-hoverBackground));
+		}
+
+		button:focus, .apply-button:focus {
+			outline: 1px solid var(--vscode-focusBorder);
+			outline-offset: 2px;
+		}
+
+		/* Help text styling */
 		.help-text {
 			font-size: 0.9em;
 			color: var(--vscode-descriptionForeground);
-			margin-top: 10px;
+			margin-top: 5px;
 		}
 
-		button {
+		/* Chart container */
+		.chart-container {
+			position: relative; /* Changed from sticky to prevent layout issues */
+			z-index: 10;
+			flex: 1; /* Take all available space */
+			min-height: 0; /* Allow container to shrink if needed */
+			margin: 0;
+			transition: all 0.3s ease-in-out;
+			width: 100%; /* Ensure it doesn't exceed parent width */
+			box-sizing: border-box; /* Include padding in width calculation */
+			overflow: hidden; /* Prevent content from spilling out */
+		}
+
+		/* Expanded chart state */
+		.chart-container.expanded {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			z-index: 1000;
+			padding: 30px;
+			box-sizing: border-box;
+			background-color: var(--vscode-editor-background);
+			border-radius: 0; /* Remove rounded corners when expanded to full screen */
+		}
+
+		/* Chart header with controls */
+		.chart-header {
+			position: absolute;
+			top: 5px;
+			right: 5px;
+			z-index: 1001; /* Make sure it's above the expanded chart container */
+			display: flex;
+			gap: 5px;
+		}
+
+		/* Export and expand buttons */
+		.export-button, .expand-button {
 			background-color: var(--vscode-button-background);
 			color: var(--vscode-button-foreground);
 			border: none;
-			padding: 8px 16px;
 			border-radius: 3px;
-			cursor: pointer;
-			margin-top: 10px;
-		}
-
-		button:hover {
-			background-color: var(--vscode-button-hoverBackground);
-		}
-
-		.benchmark-list {
-			max-height: 200px;
-			overflow-y: auto;
-			padding: 5px;
-			background-color: var(--vscode-input-background);
-			border: 1px solid var(--vscode-input-border);
-			border-radius: 3px;
-		}
-
-		.benchmark-item {
+			height: 28px;
 			display: flex;
 			align-items: center;
-			margin-bottom: 5px;
-		}
-
-		.benchmark-item input {
-			margin-right: 8px;
-		}
-
-		.chart-container {
+			justify-content: center;
+			cursor: pointer;
+			opacity: 0.9;
 			position: relative;
-			height: 400px;
-			margin-top: 20px;
-			padding: 15px;
-			background-color: var(--vscode-editor-inactiveSelectionBackground);
-			border-radius: 5px;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add shadow for better visibility */
 		}
 
+		.export-button {
+			padding: 0 8px;
+			font-size: 12px;
+			font-weight: 500;
+		}
+
+		.expand-button {
+			width: 28px;
+		}
+
+		.expand-button:hover, .export-button:hover {
+			opacity: 1;
+			background-color: var(--vscode-button-background);
+		}
+
+		.expanded .expand-button,
+		.expanded .export-button {
+			opacity: 0.9;
+			background-color: var(--vscode-button-background);
+		}
+
+		.expand-icon {
+			font-size: 16px;
+			line-height: 1;
+		}
+
+		/* Change icon when expanded */
+		.expanded .expand-icon {
+			content: "⤢";
+			transform: rotate(180deg);
+		}
+
+		/* Color palette selector */
 		.color-palette {
 			display: flex;
 			gap: 10px;
@@ -145,8 +256,9 @@
 			display: flex;
 			width: 100px;
 			height: 20px;
-			border-radius: 3px;
+			border-radius: var(--vscode-input-border-radius, 3px);
 			overflow: hidden;
+			border: 1px solid var(--vscode-input-border);
 		}
 
 		.palette-color {
@@ -158,46 +270,33 @@
 			outline: 2px solid var(--vscode-focusBorder);
 		}
 
-		.custom-colors {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 5px;
-			margin-top: 10px;
-		}
-
-		.color-input {
-			display: flex;
-			align-items: center;
-			margin-bottom: 5px;
-		}
-
-		.color-input input {
-			margin-right: 5px;
-			width: 50px;
-		}
-
+		/* Tooltip styling to match VS Code tooltips */
 		.tooltip {
-			background-color: var(--vscode-editor-background);
-			border: 1px solid var(--vscode-input-border);
-			padding: 10px;
-			border-radius: 5px;
-			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+			background-color: var(--vscode-editorHoverWidget-background);
+			color: var(--vscode-editorHoverWidget-foreground);
+			border: 1px solid var(--vscode-editorHoverWidget-border);
+			padding: 8px;
+			border-radius: var(--vscode-editorHoverWidget-border-radius, 3px);
+			box-shadow: 0 2px 8px var(--vscode-widget-shadow);
+			font-size: var(--vscode-editor-font-size);
 		}
 
+		/* Error message styling */
 		.error-message {
 			color: var(--vscode-errorForeground);
 			background-color: var(--vscode-inputValidation-errorBackground);
 			border: 1px solid var(--vscode-inputValidation-errorBorder);
 			padding: 10px;
 			margin: 10px 0;
-			border-radius: 5px;
+			border-radius: var(--vscode-input-border-radius, 3px);
 		}
 
-		/* Tab styles */
+		/* Tab styling to match VS Code's tab system */
 		.tabs {
 			display: flex;
 			margin-bottom: 0;
-			border-bottom: 1px solid var(--vscode-input-border);
+			border-bottom: 1px solid var(--vscode-tab-border);
+			background-color: var(--vscode-tab-inactiveBackground);
 		}
 
 		.tab {
@@ -206,27 +305,61 @@
 			border-top-left-radius: 3px;
 			border-top-right-radius: 3px;
 			margin-right: 2px;
-			background-color: var(--vscode-editor-inactiveSelectionBackground);
+			color: var(--vscode-tab-inactiveForeground);
+			border: 1px solid transparent;
+			border-bottom: none;
+		}
+
+		.tab:hover {
+			background-color: var(--vscode-tab-hoverBackground);
+			color: var(--vscode-tab-hoverForeground, var(--vscode-tab-activeForeground));
 		}
 
 		.tab.active {
-			background-color: var(--vscode-button-background);
-			color: var(--vscode-button-foreground);
+			background-color: var(--vscode-tab-activeBackground);
+			color: var(--vscode-tab-activeForeground);
+			border-color: var(--vscode-tab-activeBorder, transparent);
+			border-bottom: 2px solid var(--vscode-tab-activeBorderTop, var(--vscode-focusBorder));
+			position: relative;
+			top: 1px;
 		}
 
 		.tab-content {
 			display: none;
 			padding: 15px;
-			background-color: var(--vscode-editor-inactiveSelectionBackground);
-			border-bottom-left-radius: 5px;
-			border-bottom-right-radius: 5px;
+			background-color: var(--vscode-editor-background);
+			border: 1px solid var(--vscode-panel-border);
+			border-top: none;
+			border-bottom-left-radius: var(--vscode-panel-border-radius, 3px);
+			border-bottom-right-radius: var(--vscode-panel-border-radius, 3px);
 		}
 
 		.tab-content.active {
 			display: block;
 		}
 
-		/* Settings styles */
+		/* Control section styling */
+		.control-section {
+			margin-bottom: 15px;
+		}
+
+		.checkbox-group {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			margin-top: 5px;
+		}
+
+		.checkbox-item {
+			display: flex;
+			align-items: center;
+		}
+
+		.checkbox-item input {
+			margin-right: 8px;
+		}
+
+		/* Checkbox styling - legacy support */
 		.grid-display-toggle,
 		.animation-toggle {
 			display: flex;
@@ -239,85 +372,273 @@
 			margin-right: 8px;
 		}
 
+		input[type="checkbox"] {
+			appearance: none;
+			width: 16px;
+			height: 16px;
+			border: 1px solid var(--vscode-checkbox-border);
+			background-color: var(--vscode-checkbox-background);
+			border-radius: 3px;
+			position: relative;
+		}
+
+		input[type="checkbox"]:checked {
+			background-color: var(--vscode-checkbox-selectBackground, var(--vscode-button-background));
+			border-color: var(--vscode-checkbox-selectBorder, var(--vscode-button-background));
+		}
+
+		input[type="checkbox"]:checked::after {
+			content: "";
+			position: absolute;
+			left: 5px;
+			top: 2px;
+			width: 5px;
+			height: 9px;
+			border: solid var(--vscode-checkbox-selectForeground, var(--vscode-button-foreground));
+			border-width: 0 2px 2px 0;
+			transform: rotate(45deg);
+		}
+
+		input[type="checkbox"]:focus {
+			outline: 1px solid var(--vscode-focusBorder);
+			outline-offset: 1px;
+		}
+
+		.toggle-container {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 8px;
+		}
+
+		.toggle-switch {
+			position: relative;
+			display: inline-block;
+			width: 36px;
+			height: 20px;
+		}
+
+		.toggle-switch input {
+			opacity: 0;
+			width: 0;
+			height: 0;
+			margin: 0;
+		}
+
+		.toggle-slider {
+			position: absolute;
+			cursor: pointer;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: var(--vscode-input-background);
+			border: 1px solid var(--vscode-checkbox-border);
+			transition: .3s;
+			border-radius: 20px;
+		}
+
+		.toggle-slider:before {
+			position: absolute;
+			content: "";
+			height: 14px;
+			width: 14px;
+			left: 2px;
+			bottom: 2px;
+			background-color: var(--vscode-foreground);
+			transition: .3s;
+			border-radius: 50%;
+		}
+
+		input:checked + .toggle-slider {
+			background-color: var(--vscode-button-background);
+			border-color: var(--vscode-button-background);
+		}
+
+		input:checked + .toggle-slider:before {
+			background-color: var(--vscode-checkbox-selectForeground, #fff);
+			transform: translateX(16px);
+		}
+
+		input:focus + .toggle-slider {
+			outline: 1px solid var(--vscode-focusBorder);
+			outline-offset: 1px;
+		}
+
+		.toggle-label {
+			color: var(--vscode-input-placeholderForeground);
+			margin-right: 8px;
+		}
+
+		input[type="range"] {
+			-webkit-appearance: none;
+			height: 4px;
+			background-color: var(--vscode-input-background);
+			border-radius: 2px;
+			margin: 8px 0;
+			outline: none;
+		}
+
+		input[type="range"]::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			width: 14px;
+			height: 14px;
+			border-radius: 50%;
+			background-color: var(--vscode-button-background);
+			cursor: pointer;
+			border: none;
+		}
+
+		input[type="range"]::-moz-range-thumb {
+			width: 14px;
+			height: 14px;
+			border-radius: 50%;
+			background-color: var(--vscode-button-background);
+			cursor: pointer;
+			border: none;
+		}
+
+		input[type="range"]:focus {
+			outline: 1px solid var(--vscode-focusBorder);
+			outline-offset: 2px;
+		}
+
+		/* Font size controls specific styling */
+		.font-size-control {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.font-size-value {
+			color: var(--vscode-descriptionForeground);
+			font-size: 0.9em;
+			min-width: 40px;
+			text-align: right;
+		}
+
+		/* Table styling to match VS Code's list and table styling */
 		.table-view {
-			margin-top: 20px;
 			width: 100%;
-			border-collapse: collapse;
+			table-layout: fixed;
+			border: none; /* Remove border as the container already has one */
+			height: 100%;
+			flex: 1;
+			will-change: transform; /* Optimize for scrolling performance */
+			box-sizing: border-box; /* Ensure padding doesn't affect layout */
+			padding-bottom: 8px; /* Add padding to prevent jumps at the bottom */
+			margin-bottom: 0; /* Remove any default margin */
+		}
+
+		/* Table header styling */
+		.table-view thead th {
+			position: sticky;
+			top: 0;
+			z-index: 2;
+			background-color: var(--vscode-sideBarSectionHeader-background);
+			color: var(--vscode-sideBarSectionHeader-foreground);
+			font-weight: var(--vscode-font-weight);
+			text-align: left;
+			padding: 8px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			box-sizing: border-box; /* Prevent box model issues */
+		}
+
+		/* Table body styling */
+		.table-view tbody {
+			overflow-y: auto;
 			overflow-x: auto;
-			background-color: var(--vscode-editor-inactiveSelectionBackground);
-			border-radius: 5px;
 		}
 
-		.table-view table {
-			width: 100%;
-			border-collapse: collapse;
-		}
-
-		.table-view th,
-		.table-view td {
+		.table-view tbody td {
 			padding: 8px;
 			text-align: left;
-			border-bottom: 1px solid var(--vscode-input-border);
+			border-bottom: 1px solid var(--vscode-panel-border);
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 
-		.table-view th {
-			background-color: var(--vscode-button-background);
-			color: var(--vscode-button-foreground);
-		}
-
-		.table-view tr:hover {
+		/* Row hover effects */
+		.table-view tbody tr:hover {
 			background-color: var(--vscode-list-hoverBackground);
 		}
 
+		.table-view tbody tr:focus {
+			background-color: var(--vscode-list-focusBackground);
+			outline: 1px solid var(--vscode-focusBorder);
+		}
+
+		.table-view tbody tr.selected {
+			background-color: var(--vscode-list-activeSelectionBackground);
+			color: var(--vscode-list-activeSelectionForeground);
+		}
+
+		/* Export buttons container */
 		.export-buttons {
 			display: flex;
-			gap: 5px;
+			gap: 4px;
 			margin-top: 10px;
 		}
 
-		/* Unified Layout Styles */
+		/* Unified layout structure */
 		.unified-layout {
 			display: flex;
-			gap: 20px;
-			height: calc(100vh - 120px);
-			min-height: 500px;
+			gap: 12px; /* Equal spacing */
+			height: 100%;
+			width: 100%;
+			min-height: 0; /* Allow container to shrink below 500px if needed */
+			padding: 12px;
+			overflow: hidden;
 		}
 
 		.side-panel {
-			flex: 0 0 300px;
+			flex: 0 0 280px; /* Slightly narrower */
 			overflow-y: auto;
-			padding-right: 10px;
-			max-height: 100%;
+			overflow-x: hidden; /* Prevent horizontal scrolling */
+			height: 100%;
+			padding: 12px;
 		}
 
 		.main-panel {
 			flex: 1;
 			display: flex;
 			flex-direction: column;
-			gap: 20px;
-			overflow-y: auto;
-			max-height: 100%;
+			gap: 12px; /* Equal spacing */
+			overflow: hidden; /* Prevent overall scrolling on main panel */
+			height: 100%;
+			min-width: 0; /* Allow container to shrink if needed */
+			min-height: 0; /* Allow container to shrink if needed */
 		}
 
-		.table-container {
-			flex: 1;
-			min-height: 200px;
-			background-color: var(--vscode-editor-inactiveSelectionBackground);
-			border-radius: 5px;
-			padding: 15px;
-			overflow: auto;
-			margin-top: 20px;
-		}
-
+		/* Configuration inputs layout */
 		.config-row {
 			display: flex;
-			gap: 10px;
+			gap: 12px;
 		}
 
 		.config-col {
 			flex: 1;
 		}
 
+		/* Table container */
+		.table-container {
+			height: 35vh; /* Slightly smaller to ensure fit */
+			flex-shrink: 0; /* Prevent table from shrinking */
+			overflow: auto; /* Let the table handle its own scrolling */
+			margin: 0;
+			display: flex; /* Use flex to allow table to expand */
+			flex-direction: column; /* Stack contents vertically */
+			max-width: 100%; /* Ensure the container doesn't exceed the viewport */
+			scrollbar-gutter: stable; /* Prevent layout shift when scrollbar appears/disappears */
+			overscroll-behavior: none; /* Prevent bounce scroll on edges */
+			-webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+			min-height: 0; /* Allow container to shrink if needed */
+		}
+
+		/* Text styles for data visualization */
 		.delta-value {
 			color: var(--vscode-charts-blue);
 			font-size: 0.9em;
@@ -327,45 +648,39 @@
 			color: var(--vscode-editorWarning-foreground);
 			text-decoration: underline dotted;
 		}
+
+		/* High contrast theme support */
+		@media (forced-colors: active) {
+			.palette, .palette-color {
+				border: 1px solid CanvasText;
+			}
+			.palette.selected {
+				outline: 2px solid Highlight;
+			}
+			button, .apply-button {
+				border: 1px solid ButtonText;
+			}
+			.tab.active {
+				border-bottom: 2px solid Highlight;
+			}
+		}
 	</style>
 </head>
 
 <body>
 	<div id="error-container"></div>
-	<div class="tabs">
-		<div class="tab active" data-tab="unified-tab">Benchmark Visualization</div>
-		<div class="tab" data-tab="settings-tab">Appearance</div>
-	</div>
-
-	<div id="unified-tab" class="tab-content active">
-		<div class="unified-layout">
-			<div class="side-panel">
+	<div class="unified-layout">
+		<div class="side-panel">
 				<div class="control-group">
-					<h3>Benchmarks</h3>
-					<div id="benchmark-list" class="benchmark-list">
-						<!-- Benchmarks will be populated here -->
-					</div>
-				</div>
+					<h3>Pivot &amp; Filter</h3>
 
-				<div class="control-group">
-					<h3>Visualization</h3>
 					<label for="metric-select">Metric:</label>
 					<select id="metric-select">
 						<!-- Metrics will be populated here -->
 					</select>
 
-					<label for="chart-type">Chart Type:</label>
-					<select id="chart-type">
-						<option value="bar">Bar Chart</option>
-						<option value="line">Line Chart</option>
-					</select>
-				</div>
-
-				<div class="control-group">
-					<h3>Benchstat Configuration</h3>
-
-					<label for="benchmark-filter">Filter:</label>
-					<input type="text" id="benchmark-filter" placeholder="e.g. Algorithm1|Algorithm2">
+					<label for="benchmark-table">Table:</label>
+					<input type="text" id="benchmark-table" placeholder="e.g. mem">
 
 					<label for="benchmark-row">Row:</label>
 					<input type="text" id="benchmark-row" placeholder="e.g. \d+_\d+">
@@ -373,16 +688,11 @@
 					<label for="benchmark-col">Column:</label>
 					<input type="text" id="benchmark-col" placeholder="e.g. Version">
 
-					<div class="config-row">
-						<div class="config-col">
-							<label for="benchmark-ignore">Ignore:</label>
-							<input type="text" id="benchmark-ignore" placeholder="e.g. Setup|Cleanup">
-						</div>
-						<div class="config-col">
-							<label for="benchmark-table">Table:</label>
-							<input type="text" id="benchmark-table" placeholder="e.g. mem">
-						</div>
-					</div>
+					<label for="benchmark-filter">Filter:</label>
+					<input type="text" id="benchmark-filter" placeholder="e.g. Algorithm1|Algorithm2">
+
+					<label for="benchmark-ignore">Ignore:</label>
+					<input type="text" id="benchmark-ignore" placeholder="e.g. Setup|Cleanup">
 
 					<div class="config-row">
 						<div class="config-col">
@@ -398,9 +708,12 @@
 					<button id="apply-config" class="apply-button">Apply Configuration</button>
 				</div>
 
+				<hr style="border: none; height: 1px; background-color: var(--vscode-panel-border); margin: 15px 0;"/>
+
 				<div class="control-group">
-					<h3>Colors</h3>
-					<div class="color-palette">
+					<h3>Look &amp; Feel</h3>
+
+					<div id="color-palette" class="color-palette">
 						<div class="palette selected" data-palette="default">
 							<div class="palette-color" style="background-color: #4285F4"></div>
 							<div class="palette-color" style="background-color: #EA4335"></div>
@@ -432,146 +745,222 @@
 							<div class="palette-color" style="background-color: #00ffcc"></div>
 						</div>
 					</div>
-					<div class="export-buttons">
-						<button id="export-png">Export PNG</button>
-						<button id="export-svg">Export SVG</button>
+
+					<label for="legend-position">Legend Position:</label>
+					<select id="legend-position">
+						<option value="top">Top</option>
+						<option value="bottom">Bottom</option>
+						<option value="left">Left</option>
+						<option value="right">Right</option>
+					</select>
+
+					<label for="chart-type">Chart Type:</label>
+					<select id="chart-type">
+						<option value="bar">Bar Chart</option>
+						<option value="line">Line Chart</option>
+					</select>
+
+					<div id="point-style-container">
+						<label for="point-style">Point Style:</label>
+						<select id="point-style">
+							<option value="circle">Circle</option>
+							<option value="cross">Cross</option>
+							<option value="crossRot">Rotated Cross</option>
+							<option value="dash">Dash</option>
+							<option value="line">Line</option>
+							<option value="rect">Rectangle</option>
+							<option value="rectRounded">Rounded Rectangle</option>
+							<option value="rectRot">Rotated Rectangle</option>
+							<option value="star">Star</option>
+							<option value="triangle">Triangle</option>
+						</select>
 					</div>
+
+					<div class="toggle-container">
+						<span class="toggle-label">X-axis grid lines:</span>
+						<label class="toggle-switch">
+							<input type="checkbox" id="show-x-grid" checked>
+							<span class="toggle-slider"></span>
+						</label>
+					</div>
+					<div class="toggle-container">
+						<span class="toggle-label">Y-axis grid lines:</span>
+						<label class="toggle-switch">
+							<input type="checkbox" id="show-y-grid" checked>
+							<span class="toggle-slider"></span>
+						</label>
+					</div>
+					<div class="toggle-container">
+						<span class="toggle-label">Enable animations:</span>
+						<label class="toggle-switch">
+							<input type="checkbox" id="enable-animations" checked>
+							<span class="toggle-slider"></span>
+						</label>
+					</div>
+
+					<div class="font-size-control">
+						<label for="title-size">Title Font Size</label>
+						<span id="title-size-value" class="font-size-value">14px</span>
+					</div>
+					<input type="range" id="title-size" min="8" max="24" value="14">
+					<div class="font-size-control">
+						<label for="label-size">Axis Label Font Size</label>
+						<span id="label-size-value" class="font-size-value">12px</span>
+					</div>
+					<input type="range" id="label-size" min="8" max="20" value="12">
+					<div class="font-size-control">
+						<label for="tick-size">Tick Font Size</label>
+						<span id="tick-size-value" class="font-size-value">10px</span>
+					</div>
+					<input type="range" id="tick-size" min="6" max="16" value="10">
 				</div>
 			</div>
 
-			<div class="main-panel">
-				<div class="chart-container">
-					<canvas id="benchmarkChart"></canvas>
+		<div class="main-panel">
+			<div class="chart-container">
+				<div class="chart-header">
+					<button id="export-chart-png" class="export-button" title="Export as PNG">
+						PNG
+					</button>
+					<button id="expand-chart" class="expand-button" title="Expand chart to fullscreen">
+						<span class="expand-icon">⤢</span>
+					</button>
 				</div>
+				<canvas id="benchmarkChart" style="width: 100%; height: 100%;"></canvas>
+			</div>
 
 				<div class="table-container">
-					<h3>Data Table</h3>
-					<div class="table-view">
-						<table id="data-table">
-							<thead id="table-header">
-								<!-- Table header will be added dynamically -->
-							</thead>
-							<tbody id="table-body">
-								<!-- Table rows will be added dynamically -->
-							</tbody>
-						</table>
-					</div>
+					<table id="data-table" class="table-view">
+						<thead id="table-header">
+							<!-- Table header will be populated dynamically -->
+						</thead>
+						<tbody id="table-body">
+							<!-- Table rows will be populated dynamically -->
+						</tbody>
+					</table>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<div id="settings-tab" class="tab-content">
-		<div class="controls">
-			<div class="control-group">
-				<h3>Chart Settings</h3>
-
-				<div class="grid-display-toggle">
-					<input type="checkbox" id="show-grid" checked>
-					<label for="show-grid">Show Grid</label>
-				</div>
-
-				<div class="grid-display-toggle">
-					<input type="checkbox" id="show-x-grid" checked>
-					<label for="show-x-grid">X-axis Grid Lines</label>
-				</div>
-
-				<div class="grid-display-toggle">
-					<input type="checkbox" id="show-y-grid" checked>
-					<label for="show-y-grid">Y-axis Grid Lines</label>
-				</div>
-
-				<label for="point-style">Point Style</label>
-				<select id="point-style">
-					<option value="circle">Circle</option>
-					<option value="cross">Cross</option>
-					<option value="crossRot">Rotated Cross</option>
-					<option value="dash">Dash</option>
-					<option value="line">Line</option>
-					<option value="rect">Rectangle</option>
-					<option value="rectRounded">Rounded Rectangle</option>
-					<option value="rectRot">Rotated Rectangle</option>
-					<option value="star">Star</option>
-					<option value="triangle">Triangle</option>
-				</select>
-
-				<div class="animation-toggle">
-					<input type="checkbox" id="enable-animations" checked>
-					<label for="enable-animations">Enable Animations</label>
-				</div>
-
-				<label for="legend-position">Legend Position</label>
-				<select id="legend-position">
-					<option value="top">Top</option>
-					<option value="bottom">Bottom</option>
-					<option value="left">Left</option>
-					<option value="right">Right</option>
-				</select>
-			</div>
-
-			<div class="control-group">
-				<h3>Font Settings</h3>
-
-				<label for="title-size">Title Font Size</label>
-				<input type="range" id="title-size" min="8" max="24" value="14">
-				<span id="title-size-value">14px</span>
-
-				<label for="label-size">Axis Label Font Size</label>
-				<input type="range" id="label-size" min="8" max="20" value="12">
-				<span id="label-size-value">12px</span>
-
-				<label for="tick-size">Tick Font Size</label>
-				<input type="range" id="tick-size" min="6" max="16" value="10">
-				<span id="tick-size-value">10px</span>
-			</div>
-		</div>
-	</div>
 
 	<script nonce="{{nonce}}">
 		// Initialize the WASM visualization with the URL to the WASM binary
 		const wasmUrl = '{{{WASM_URL}}}';
 		const visualization = WasmVis.initializeWasmVisualization(wasmUrl);
 
-		// Tab switching functionality
-		document.querySelectorAll('.tab').forEach(tab => {
-			tab.addEventListener('click', (event) => {
-				const tabId = event.target.dataset.tab;
-				switchTab(tabId);
-			});
+		// Initialize components on page load
+		document.addEventListener('DOMContentLoaded', () => {
+			// We'll use the handleResize function defined below
+			if (typeof handleResize === 'function') {
+				handleResize();
+			}
+
+			// Set initial point style visibility based on chart type
+			const chartTypeSelect = document.getElementById('chart-type');
+			const pointStyleContainer = document.getElementById('point-style-container');
+			if (chartTypeSelect && pointStyleContainer) {
+				pointStyleContainer.style.display = chartTypeSelect.value === 'line' ? 'block' : 'none';
+			}
 		});
 
-		function switchTab(tabId) {
-			// Hide all tab contents
-			document.querySelectorAll('.tab-content').forEach(content => {
-				content.classList.remove('active');
-			});
+		// Export functionality from chart header
 
-			// Deactivate all tabs
-			document.querySelectorAll('.tab').forEach(tab => {
-				tab.classList.remove('active');
-			});
-
-			// Activate the selected tab and content
-			document.getElementById(tabId).classList.add('active');
-			document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
-
-			// Notify controller about tab change
-			visualization.handleTabChange(tabId);
-		}
-
-		// Export functionality
-		document.getElementById('export-png')?.addEventListener('click', () => {
+		// Chart header export buttons
+		document.getElementById('export-chart-png')?.addEventListener('click', () => {
 			visualization.exportChart('png');
 		});
 
-		document.getElementById('export-svg')?.addEventListener('click', () => {
-			visualization.exportChart('svg');
-		});
+
+		// Chart expand/collapse functionality
+		const expandButton = document.getElementById('expand-chart');
+		const chartContainer = document.querySelector('.chart-container');
+		const chartHeader = document.querySelector('.chart-header');
+
+		if (expandButton && chartContainer && chartHeader) {
+			// Ensure the button is always visible initially
+			chartHeader.style.display = 'flex';
+
+			// Function to handle expand/collapse
+			const toggleExpandedState = () => {
+				// Toggle expanded class
+				const isExpanding = !chartContainer.classList.contains('expanded');
+				chartContainer.classList.toggle('expanded');
+
+				// Change icon based on state
+				const icon = expandButton.querySelector('.expand-icon');
+				if (icon) {
+					if (isExpanding) {
+						expandButton.setAttribute('title', 'Collapse chart');
+						icon.textContent = '⤡';
+					} else {
+						expandButton.setAttribute('title', 'Expand chart to fullscreen');
+						icon.textContent = '⤢';
+					}
+				}
+
+				// Ensure chart header is visible
+				chartHeader.style.display = 'flex';
+
+				// Resize chart after transition
+				setTimeout(() => {
+					if (visualization.benchmarkChart) {
+						visualization.benchmarkChart.resize();
+
+						// If we're collapsing, do a second resize after a short delay
+						// to ensure proper rendering after transition completes
+						if (!isExpanding) {
+							setTimeout(() => {
+								visualization.benchmarkChart.resize();
+								// Ensure the chart container stays within bounds
+								chartContainer.style.width = '100%';
+							}, 150);
+						}
+					}
+					// Double check visibility after resize
+					chartHeader.style.display = 'flex';
+				}, 300);
+			};
+
+			// Add click event listener
+			expandButton.addEventListener('click', toggleExpandedState);
+
+			// Add keyboard shortcut to exit fullscreen (Escape key)
+			document.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape' && chartContainer.classList.contains('expanded')) {
+					toggleExpandedState();
+				}
+			});
+
+			// Add resize observer to ensure button stays visible
+			if (window.ResizeObserver) {
+				const resizeObserver = new ResizeObserver(() => {
+					// Ensure chart header is visible after any resize
+					chartHeader.style.display = 'flex';
+
+					// Fix chart container width if it's collapsed
+					if (!chartContainer.classList.contains('expanded')) {
+						chartContainer.style.width = '100%';
+					}
+				});
+				resizeObserver.observe(chartContainer);
+			}
+
+			// Add transition end listener to fix size after collapse
+			chartContainer.addEventListener('transitionend', () => {
+				if (!chartContainer.classList.contains('expanded')) {
+					// Reset width when collapsed to prevent overflow issues
+					chartContainer.style.width = '100%';
+
+					// Ensure proper chart sizing
+					if (visualization.benchmarkChart) {
+						visualization.benchmarkChart.resize();
+					}
+				}
+			});
+		}
 
 		// Settings event listeners
-		document.getElementById('show-grid')?.addEventListener('change', (e) => {
-			visualization.updateChartSetting('showGrid', e.target.checked);
-		});
 
 		document.getElementById('show-x-grid')?.addEventListener('change', (e) => {
 			visualization.updateChartSetting('showXGrid', e.target.checked);
@@ -587,6 +976,14 @@
 
 		document.getElementById('enable-animations')?.addEventListener('change', (e) => {
 			visualization.updateChartSetting('enableAnimations', e.target.checked);
+		});
+
+		document.getElementById('chart-type')?.addEventListener('change', (e) => {
+			const pointStyleContainer = document.getElementById('point-style-container');
+			if (pointStyleContainer) {
+				pointStyleContainer.style.display = e.target.value === 'line' ? 'block' : 'none';
+			}
+			visualization.updateChartSetting('chartType', e.target.value);
 		});
 
 		document.getElementById('legend-position')?.addEventListener('change', (e) => {
@@ -611,13 +1008,106 @@
 			visualization.updateChartSetting('tickSize', value);
 		});
 
-		// No need to connect table metric select as we now have a unified view
-
 		// Apply Configuration button
 		document.getElementById('apply-config')?.addEventListener('click', () => {
 			// Trigger a data refresh with the new configuration
 			visualization.refreshBenchmarkData();
 		});
+
+		// MutationObserver to watch for changes to the table
+		const tableObserver = new MutationObserver(() => {
+			// Make the table body scroll horizontally with the header
+			const tableContainer = document.querySelector('.table-container');
+			if (tableContainer) {
+				// Make sure we have scrolling properly set
+				tableContainer.style.overflowX = 'auto';
+
+				// Force browser to use hardware acceleration for smoother scrolling
+				tableContainer.style.transform = 'translateZ(0)';
+
+				// Ensure consistent width calculations
+				const dataTable = document.getElementById('data-table');
+				if (dataTable && dataTable.offsetWidth < tableContainer.offsetWidth) {
+					dataTable.style.width = '100%';
+				}
+			}
+		});
+
+		// Observe the data table for changes
+		const dataTable = document.getElementById('data-table');
+		if (dataTable) {
+			tableObserver.observe(dataTable, {
+				childList: true,
+				subtree: true
+			});
+		}
+
+		// Add event listeners for smoother scrolling
+		const addScrollListeners = () => {
+			const tableContainer = document.querySelector('.table-container');
+			if (tableContainer) {
+				// Add some padding at the bottom of the table for smoother scrolling
+				const table = tableContainer.querySelector('.table-view');
+				if (table) {
+					// Ensure the table can be scrolled all the way to the end without jumps
+					table.style.paddingBottom = '2px';
+				}
+
+				// Prevent any elastic overscroll behavior
+				tableContainer.addEventListener('wheel', (e) => {
+					const { scrollTop, scrollHeight, clientHeight } = tableContainer;
+
+					// At top and trying to scroll up
+					if (scrollTop <= 0 && e.deltaY < 0) {
+						e.preventDefault();
+					}
+
+					// At bottom and trying to scroll down
+					if (scrollTop + clientHeight >= scrollHeight && e.deltaY > 0) {
+						e.preventDefault();
+					}
+				}, { passive: false });
+			}
+		};
+
+		// Initialize scroll listeners
+		addScrollListeners();
+
+		// Re-initialize listeners after DOM changes
+		tableObserver.observe(document.body, { childList: true, subtree: true });
+
+		// Add resize handler for the chart and to maintain proper proportions
+		const handleResize = () => {
+			// Get available height
+			const availableHeight = window.innerHeight;
+
+			// Calculate dimensions
+			const tablePadding = 10; // Allow for padding
+			const tableHeight = Math.min(Math.floor(availableHeight * 0.35), availableHeight - 250); // Ensure minimum space for chart
+
+			// Resize chart
+			if (visualization.benchmarkChart) {
+				visualization.benchmarkChart.resize();
+			}
+
+			// Adjust table height
+			const tableContainer = document.querySelector('.table-container');
+			if (tableContainer) {
+				tableContainer.style.height = `${tableHeight}px`;
+			}
+
+			// Ensure sidebar fits
+			const sidePanel = document.querySelector('.side-panel');
+			if (sidePanel) {
+				sidePanel.style.maxHeight = `${availableHeight - 20}px`; // 20px for overall padding
+			}
+		};
+
+		// Add resize listener
+		window.addEventListener('resize', handleResize);
+
+		// Initial size adjustment
+		setTimeout(handleResize, 0);
 	</script>
 </body>
 
