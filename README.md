@@ -2,7 +2,7 @@
 
 Benchvis is a VS Code extension for visualizing Go benchmark results. It supports both raw Go benchmark output and `benchstat` formatted comparisons with an interactive, customizable visualization interface.
 
-![Benchvis Logo](./usage.jpg)
+![Benchvis Logo](usage.png)
 
 ## Features
 
